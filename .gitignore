@@ -1,0 +1,7 @@
+node_modules/
+linux/fcitx5/build/
+dist/
+dist-test/
+release/
+packaging/out/
+chatgpt_amd64.deb
