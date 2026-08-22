@@ -1,0 +1,34 @@
+:root { color-scheme: light; font: 14px/1.5 system-ui, "Microsoft YaHei", sans-serif; color: #182033; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f4f6fa; }
+header { display: flex; align-items: center; gap: 12px; padding: 22px 28px 12px; }
+header img { width: 44px; height: 44px; border-radius: 11px; }
+header h1 { margin: 0; font-size: 22px; }
+header span { color: #788398; }
+main { display: grid; gap: 14px; padding: 0 28px 30px; }
+section { padding: 18px; background: white; border: 1px solid #e0e5ee; border-radius: 13px; box-shadow: 0 5px 20px rgba(33,48,77,.05); }
+h2 { margin: 0 0 14px; font-size: 16px; }
+.row { display: flex; align-items: center; gap: 12px; min-height: 40px; }
+.row > label, .row > span:first-child { min-width: 80px; color: #5f6b80; }
+select, input, button { height: 38px; border-radius: 8px; font: inherit; }
+select, input { padding: 0 10px; border: 1px solid #cad3e1; background: white; }
+select { flex: 1; }
+button { padding: 0 14px; border: 0; background: #e9eef7; color: #26334a; cursor: pointer; font-weight: 600; }
+button.primary { background: #286df0; color: white; }
+button:disabled { opacity: .55; cursor: default; }
+.status { padding: 4px 9px; border-radius: 99px; font-size: 12px; background: #edf0f5; }
+.status[data-state="ready"] { color: #087b4d; background: #ddf6eb; }
+.status[data-state="warning"] { color: #a84332; background: #fde8e4; }
+.warning { margin: 8px 0 12px; padding: 9px 11px; border-radius: 8px; color: #a84332; background: #fff0ed; }
+.switch { display: flex; align-items: center; gap: 10px; min-height: 40px; }
+.switch input { width: 17px; height: 17px; }
+.screen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin: 12px 0; padding: 15px; aspect-ratio: 16/5; border: 2px solid #b9c4d6; border-radius: 10px; background: #f7f9fc; }
+.screen button { align-self: center; justify-self: center; width: 24px; height: 24px; padding: 0; border: 3px solid #3476ed; border-radius: 50%; background: #76a4f8; }
+.coordinates { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.coordinates label { display: grid; grid-template-columns: 18px 1fr; align-items: center; color: #5f6b80; }
+.coordinates input { width: 100%; }
+.buttons { display: flex; gap: 10px; margin-top: 12px; }
+.hint { margin-top: 7px; color: #7b8698; font-size: 12px; }
+.shortcut { margin-left: auto; min-width: 180px; }
+.link { margin-left: auto; color: #286df0; background: transparent; }
+#message { min-height: 21px; color: #55708f; }
