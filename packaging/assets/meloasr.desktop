@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=MeloASR
+Comment=Web-backed voice input for Fcitx5
+Comment[zh_CN]=基于网页后端的 Fcitx5 语音输入工具
+Exec=meloasr
+Icon=meloasr
+Terminal=false
+Categories=Utility;Accessibility;
+StartupNotify=false

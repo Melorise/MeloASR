@@ -1,0 +1,22 @@
+appId: io.github.meloasr.MeloASR
+productName: MeloASR
+asar: true
+
+directories:
+  output: release
+
+files:
+  - dist/**/*
+  - package.json
+
+extraResources:
+  - from: logo.png
+    to: logo.png
+
+linux:
+  target:
+    - dir
+  executableName: meloasr
+  icon: logo.png
+  category: Utility
+

@@ -1,0 +1,11 @@
+Package: meloasr
+Version: @VERSION@
+Section: sound
+Priority: optional
+Architecture: @ARCH@
+Maintainer: MeloASR contributors
+Installed-Size: @INSTALLED_SIZE@
+Depends: fcitx5, libc6, libstdc++6, libgtk-3-0, libnss3, libxss1, libgbm1, libasound2 | libasound2t64
+Description: Web-backed voice input for Fcitx5
+ MeloASR hosts supported web speech-recognition backends and sends their
+ live corrected text to the active Fcitx5 input context.
