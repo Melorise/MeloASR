@@ -75,9 +75,11 @@ jobs:
         include:
           - arch: amd64
             deb_arch: amd64
+            electron_app_dir: release/linux-unpacked
             runner: ubuntu-24.04
           - arch: arm64
             deb_arch: arm64
+            electron_app_dir: release/linux-arm64-unpacked
             runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
     steps:
@@ -101,6 +103,7 @@ jobs:
         env:
           MELOASR_VERSION: ${{ needs.update-flake-lock.outputs.version }}
           MELOASR_DEB_ARCH: ${{ matrix.deb_arch }}
+          MELOASR_ELECTRON_APP_DIR: ${{ matrix.electron_app_dir }}
         run: |
           npm ci
           npm run package:deb

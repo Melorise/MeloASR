@@ -2,6 +2,14 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 的格式。
 
+## [0.1.9] - 2026-08-23
+
+### 修复
+
+- 修复 arm64 deb/rpm 构建使用错误 Electron 解包目录的问题。
+- 修复 RPM 打包时 Fcitx5 addon 文件路径校验失败的问题。
+- 修复 Nix 构建错误对项目根目录执行 CMake 配置的问题。
+
 ## [0.1.8] - 2026-08-23
 
 ### 修复

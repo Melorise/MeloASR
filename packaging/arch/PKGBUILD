@@ -1,10 +1,10 @@
 pkgname=meloasr
-pkgver=0.1.8
+pkgver=0.1.9
 pkgrel=1
 pkgdesc='Web-backed voice input for Fcitx5'
 arch=('x86_64')
 url='https://github.com/Melorise/MeloASR'
-license=('custom')
+license=('MPL2')
 depends=('fcitx5' 'gtk3' 'nss' 'libxss' 'mesa' 'alsa-lib')
 makedepends=('nodejs' 'npm' 'cmake' 'gcc' 'nlohmann-json')
 source=("${pkgname}-${pkgver}.tar.gz")
@@ -38,7 +38,7 @@ package() {
     "${pkgdir}/etc/xdg/autostart/meloasr.desktop"
   install -Dm644 packaging/assets/meloasr.metainfo.xml \
     "${pkgdir}/usr/share/metainfo/meloasr.metainfo.xml"
-  install -Dm644 logo.png \
+  install -Dm644 src/assets/logo.png \
     "${pkgdir}/usr/share/pixmaps/meloasr.png"
 
   DESTDIR="${pkgdir}" cmake --install build/fcitx5

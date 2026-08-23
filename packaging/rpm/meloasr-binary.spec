@@ -2,7 +2,7 @@ Name:           meloasr
 Version:        %{meloasr_version}
 Release:        1%{?dist}
 Summary:        Web-backed voice input for Fcitx5
-License:        LicenseRef-Proprietary
+License:        MPL-2.0
 URL:            https://github.com/Melorise/MeloASR
 Source0:        meloasr-root.tar.gz
 
@@ -28,7 +28,7 @@ tar -C %{buildroot} -xzf %{SOURCE0}
 %defattr(-,root,root,-)
 /opt/meloasr
 /usr/bin/meloasr
-/usr/lib*/fcitx5/libmeloasr.so
+%{meloasr_addon_file}
 /usr/share/applications/meloasr.desktop
 /usr/share/pixmaps/meloasr.png
 /usr/share/metainfo/meloasr.metainfo.xml
@@ -36,6 +36,10 @@ tar -C %{buildroot} -xzf %{SOURCE0}
 /etc/xdg/autostart/meloasr.desktop
 
 %changelog
+* Sun Aug 23 2026 MeloASR contributors - 0.1.9-1
+- Fix multi-architecture package staging and RPM addon file ownership.
+- Fix Nix derivation configuration phase.
+
 * Sun Aug 23 2026 MeloASR contributors - 0.1.8-1
 - Fix Fcitx5 addon compatibility with Ubuntu 24.04.
 

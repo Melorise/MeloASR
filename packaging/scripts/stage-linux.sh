@@ -2,9 +2,13 @@
 set -euo pipefail
 
 project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
-app_dir="${1:-${project_dir}/release/linux-unpacked}"
+app_dir="${1:-${MELOASR_ELECTRON_APP_DIR:-${project_dir}/release/linux-unpacked}}"
 stage_dir="${2:-${project_dir}/packaging/out/root}"
 addon_build_dir="${MELOASR_ADDON_BUILD_DIR:-${project_dir}/packaging/out/fcitx5-build}"
+
+if [[ "${app_dir}" != /* ]]; then
+    app_dir="${project_dir}/${app_dir}"
+fi
 
 if [[ ! -d "${app_dir}" ]]; then
     echo "缺少 Electron 解包目录：${app_dir}" >&2

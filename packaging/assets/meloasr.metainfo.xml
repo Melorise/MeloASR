@@ -5,7 +5,7 @@
   <summary>Web-backed voice input for Fcitx5</summary>
   <summary xml:lang="zh-CN">基于网页后端的 Fcitx5 语音输入工具</summary>
   <metadata_license>CC0-1.0</metadata_license>
-  <project_license>LicenseRef-proprietary</project_license>
+  <project_license>MPL-2.0</project_license>
   <description>
     <p>MeloASR connects supported web speech-recognition backends to the active Fcitx5 input context.</p>
     <p xml:lang="zh-CN">MeloASR 将支持的网页语音识别后端连接到当前 Fcitx5 输入上下文。</p>
@@ -16,6 +16,7 @@
     <binary>meloasr</binary>
   </provides>
   <releases>
+    <release version="0.1.9" date="2026-08-23"/>
     <release version="0.1.8" date="2026-08-23"/>
     <release version="0.1.7" date="2026-08-23"/>
   </releases>
