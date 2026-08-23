@@ -62,7 +62,7 @@ jobs:
       - id: metadata
         name: 读取版本与更新日志
         run: |
-          version="$(node --input-type=module -e \"import p from './package.json' with { type: 'json' }; process.stdout.write(p.version)\")"
+          version="$(node -p \"require('./package.json').version\")"
           node scripts/release-metadata.mjs "$version" /tmp/release-notes.md
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
