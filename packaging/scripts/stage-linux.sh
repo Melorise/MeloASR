@@ -34,7 +34,7 @@ install -Dm644 "${project_dir}/packaging/assets/meloasr-autostart.desktop" \
     "${stage_dir}/etc/xdg/autostart/meloasr.desktop"
 install -Dm644 "${project_dir}/packaging/assets/meloasr.metainfo.xml" \
     "${stage_dir}/usr/share/metainfo/meloasr.metainfo.xml"
-install -Dm644 "${project_dir}/logo.png" \
+install -Dm644 "${project_dir}/src/assets/logo.png" \
     "${stage_dir}/usr/share/pixmaps/meloasr.png"
 
 cmake -S "${project_dir}/linux/fcitx5" -B "${addon_build_dir}" \

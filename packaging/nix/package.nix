@@ -12,7 +12,7 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "meloasr";
-  version = "0.1.7";
+  version = (builtins.fromJSON (builtins.readFile ../../package.json)).version;
 
   src = ../..;
 
@@ -70,7 +70,7 @@ stdenv.mkDerivation (finalAttrs: {
       "$out/etc/xdg/autostart/meloasr.desktop"
     install -Dm644 packaging/assets/meloasr.metainfo.xml \
       "$out/share/metainfo/meloasr.metainfo.xml"
-    install -Dm644 logo.png \
+    install -Dm644 src/assets/logo.png \
       "$out/share/pixmaps/meloasr.png"
 
     cmake --install build/fcitx5

@@ -10,13 +10,12 @@ files:
   - package.json
 
 extraResources:
-  - from: logo.png
+  - from: src/assets/logo.png
     to: logo.png
 
 linux:
   target:
     - dir
   executableName: meloasr
-  icon: logo.png
+  icon: src/assets/logo.png
   category: Utility
-
