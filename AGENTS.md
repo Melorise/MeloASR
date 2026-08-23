@@ -2,7 +2,7 @@
 
 ## 项目范围
 
-MeloASR 是仅面向 Linux 的 Fcitx5 桌面语音输入工具。项目名为 `MeloASR`，分发包名为 `meloasr`，当前版本为 `0.1.9`。
+MeloASR 是仅面向 Linux 的 Fcitx5 桌面语音输入工具。项目名为 `MeloASR`，分发包名为 `meloasr`，当前版本为 `0.1.10`。
 
 不得恢复 Windows、PowerShell 或 Tauri 输出路径。发行版差异只能存在于依赖说明和打包配置，不能进入语音输入核心逻辑。
 

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
-version="${MELOASR_VERSION:-0.1.9}"
+version="${MELOASR_VERSION:-0.1.10}"
 app_dir="${1:-${MELOASR_ELECTRON_APP_DIR:-${project_dir}/release/linux-unpacked}}"
 stage_dir="${project_dir}/packaging/out/rpm-root"
 top_dir="${project_dir}/packaging/out/rpmbuild"

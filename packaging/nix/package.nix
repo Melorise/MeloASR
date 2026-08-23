@@ -30,8 +30,11 @@ stdenv.mkDerivation (finalAttrs: {
 
   buildInputs = [ fcitx5 nlohmann_json ];
 
-  # 项目根目录不是 CMake 工程；Fcitx5 addon 在自定义 buildPhase 中单独配置。
-  dontConfigure = true;
+  # 保留 npmConfigHook 的 postConfigure 生命周期，但不对项目根目录运行默认 CMake 配置。
+  configurePhase = ''
+    runHook preConfigure
+    runHook postConfigure
+  '';
 
   buildPhase = ''
     runHook preBuild
