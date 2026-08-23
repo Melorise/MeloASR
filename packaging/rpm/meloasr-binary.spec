@@ -38,6 +38,7 @@ tar -C %{buildroot} -xzf %{SOURCE0}
 %changelog
 * Sun Aug 23 2026 MeloASR contributors - 0.1.11-1
 - Release only the selected speech backend renderer.
+- Keep the overlay as a non-interactive session status indicator.
 
 * Sun Aug 23 2026 MeloASR contributors - 0.1.10-1
 - Restore the Nix npm configuration hook before building the application.

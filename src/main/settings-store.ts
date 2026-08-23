@@ -8,7 +8,6 @@ const DEFAULT_SETTINGS: AppSettings = {
   backendId: 'qianwen',
   shortcut: 'Control+Shift+space',
   autoStart: true,
-  overlayPersistent: false,
   diagnosticLogging: false,
   overlayPosition: null,
   loginNoticeShown: {}
@@ -22,10 +21,12 @@ export class SettingsStore extends EventEmitter {
     try {
       const parsed = JSON.parse(fs.readFileSync(this.filePath, 'utf8')) as Partial<AppSettings> & {
         backend?: string;
+        overlayPersistent?: unknown;
       };
+      const { overlayPersistent: _obsoleteOverlayPersistent, ...saved } = parsed;
       this.value = {
         ...DEFAULT_SETTINGS,
-        ...parsed,
+        ...saved,
         backendId: parsed.backendId ?? parsed.backend ?? DEFAULT_SETTINGS.backendId,
         overlayPosition: this.isPoint(parsed.overlayPosition) ? {
           x: Math.round(parsed.overlayPosition.x), y: Math.round(parsed.overlayPosition.y)

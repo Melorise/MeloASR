@@ -10,7 +10,6 @@ interface SettingsViewState {
   sessionState: 'idle' | 'starting' | 'recording' | 'stopping';
   shortcut: string;
   autoStart: boolean;
-  overlayPersistent: boolean;
   diagnosticLogging: boolean;
   overlayPosition: { x: number; y: number };
   displays: Array<{ id: string; label: string; workArea: { x: number; y: number; width: number; height: number } }>;
@@ -26,7 +25,6 @@ const x = document.querySelector<HTMLInputElement>('#position-x')!;
 const y = document.querySelector<HTMLInputElement>('#position-y')!;
 const shortcut = document.querySelector<HTMLButtonElement>('#shortcut')!;
 const autoStart = document.querySelector<HTMLInputElement>('#auto-start')!;
-const overlayPersistent = document.querySelector<HTMLInputElement>('#overlay-persistent')!;
 const diagnosticLogging = document.querySelector<HTMLInputElement>('#diagnostic-logging')!;
 const version = document.querySelector<HTMLElement>('#version')!;
 const repository = document.querySelector<HTMLButtonElement>('#repository')!;
@@ -71,7 +69,6 @@ function render(next: SettingsViewState): void {
   renderPositionPreview(next);
   shortcut.textContent = capturingShortcut ? '请按下新快捷键…' : displayShortcut(next.shortcut);
   autoStart.checked = next.autoStart;
-  overlayPersistent.checked = next.overlayPersistent;
   diagnosticLogging.checked = next.diagnosticLogging;
   version.textContent = next.version;
   repository.textContent = next.repositoryUrl ?? '尚未配置';
@@ -197,9 +194,6 @@ shortcut.addEventListener('click', () => {
   shortcut.focus();
 });
 autoStart.addEventListener('change', () => void apply(() => window.meloSettings.setAutoStart(autoStart.checked)));
-overlayPersistent.addEventListener('change', () => void apply(
-  () => window.meloSettings.setOverlayPersistent(overlayPersistent.checked)
-));
 diagnosticLogging.addEventListener('change', () => void apply(
   () => window.meloSettings.setDiagnosticLogging(diagnosticLogging.checked)
 ));

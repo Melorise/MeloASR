@@ -81,7 +81,6 @@ export class SettingsWindow {
       sessionState: this.sessions.state,
       shortcut: current.shortcut,
       autoStart: current.autoStart,
-      overlayPersistent: current.overlayPersistent,
       diagnosticLogging: current.diagnosticLogging,
       overlayPosition: position,
       displays: screen.getAllDisplays().map((display, index) => ({

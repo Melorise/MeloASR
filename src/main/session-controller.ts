@@ -54,14 +54,6 @@ export class SessionController extends EventEmitter {
     if (this.stopRequestedDuringStart) this.stop();
   }
 
-  requestStartFromOverlay(): void {
-    if (this.state === 'recording' || this.state === 'starting') {
-      this.stop();
-      return;
-    }
-    if (!this.bridge.ready || !this.bridge.requestInputStart()) this.reject('Fcitx5 插件尚未连接');
-  }
-
   stop(): void {
     if (this.state === 'starting') {
       this.stopRequestedDuringStart = true;

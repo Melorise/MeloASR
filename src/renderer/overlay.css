@@ -1,6 +1,6 @@
 html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: transparent; }
 body { display: grid; place-items: center; }
-.voice-overlay { position: relative; display: grid; place-items: center; width: 68px; height: 68px; padding: 0; border: 0; border-radius: 50%; background: radial-gradient(circle at 35% 28%, #71aaff, #2568de 70%); box-shadow: 0 8px 24px rgba(23,79,177,.35); cursor: pointer; }
+.voice-overlay { position: relative; display: grid; place-items: center; width: 68px; height: 68px; border-radius: 50%; background: radial-gradient(circle at 35% 28%, #71aaff, #2568de 70%); box-shadow: 0 8px 24px rgba(23,79,177,.35); }
 .ring { position: absolute; inset: 0; border: 2px solid rgba(69,136,245,.45); border-radius: 50%; opacity: 0; }
 .voice-overlay[data-state="recording"] .ring { animation: ripple 1.7s ease-out infinite; }
 .voice-overlay[data-state="recording"] .ring.two { animation-delay: .55s; }

@@ -88,9 +88,6 @@ function registerIpc(services: Services): void {
   const { settings, autoStart, bridge, backends, overlay, sessions, settingsWindow } = services;
   const settingsSender = (senderId: number): boolean =>
     Boolean(settingsWindow.window && !settingsWindow.window.isDestroyed() && settingsWindow.window.webContents.id === senderId);
-  const overlaySender = (senderId: number): boolean =>
-    Boolean(overlay.window && !overlay.window.isDestroyed() && overlay.window.webContents.id === senderId);
-
   ipcMain.handle('settings:get-state', (event) => {
     if (!settingsSender(event.sender.id)) throw new Error('拒绝未授权的设置请求');
     return settingsWindow.state();
@@ -115,10 +112,6 @@ function registerIpc(services: Services): void {
     overlay.applyPreset(preset, displayId);
     return settingsWindow.state();
   });
-  ipcMain.handle('settings:preview-overlay', (event) => {
-    if (!settingsSender(event.sender.id)) throw new Error('拒绝未授权的预览请求');
-    overlay.preview();
-  });
   ipcMain.handle('settings:begin-positioning', (event) => {
     if (!settingsSender(event.sender.id)) throw new Error('拒绝未授权的位置调整请求');
     overlay.beginPositioning();
@@ -141,12 +134,6 @@ function registerIpc(services: Services): void {
     settings.update({ autoStart: enabled });
     return settingsWindow.state();
   });
-  ipcMain.handle('settings:set-overlay-persistent', (event, enabled: unknown) => {
-    if (!settingsSender(event.sender.id) || typeof enabled !== 'boolean') throw new Error('无效的悬浮球设置');
-    settings.update({ overlayPersistent: enabled });
-    overlay.reconcilePersistent();
-    return settingsWindow.state();
-  });
   ipcMain.handle('settings:set-diagnostic-logging', (event, enabled: unknown) => {
     if (!settingsSender(event.sender.id) || typeof enabled !== 'boolean') throw new Error('无效的日志设置');
     settings.update({ diagnosticLogging: enabled });
@@ -156,9 +143,6 @@ function registerIpc(services: Services): void {
   ipcMain.handle('settings:open-repository', async (event) => {
     if (!settingsSender(event.sender.id)) throw new Error('拒绝未授权的外部链接请求');
     await settingsWindow.openRepository();
-  });
-  ipcMain.on('overlay:toggle-recording', (event) => {
-    if (overlaySender(event.sender.id)) sessions.requestStartFromOverlay();
   });
   ipcMain.on('backend-status', (event, payload: BackendStatusPayload) => backends.handleStatus(event, payload));
   ipcMain.on('backend-transcript', (event, payload: { backend?: string; text?: string }) => {

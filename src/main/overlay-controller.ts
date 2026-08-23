@@ -35,9 +35,9 @@ export class OverlayController {
       }
     });
     this.window.setAlwaysOnTop(true, 'floating');
+    this.window.setIgnoreMouseEvents(true);
     await this.window.loadFile(path.join(__dirname, '..', 'renderer', 'overlay.html'));
     this.position();
-    this.reconcilePersistent();
   }
 
   position(point = this.settings.get().overlayPosition): Point {
@@ -68,7 +68,6 @@ export class OverlayController {
     if (!this.window || this.window.isDestroyed()) return;
     this.positioning = true;
     this.clearHideTimer();
-    this.window.setIgnoreMouseEvents(true);
     this.window.webContents.send('overlay-state', { state: 'idle' });
     this.window.showInactive();
   }
@@ -77,8 +76,7 @@ export class OverlayController {
     if (!this.positioning) return;
     this.positioning = false;
     if (!this.window || this.window.isDestroyed()) return;
-    this.window.setIgnoreMouseEvents(false);
-    this.reconcilePersistent();
+    this.window.hide();
   }
 
   showState(state: SessionState | 'done' | 'error'): void {
@@ -90,24 +88,7 @@ export class OverlayController {
 
   hideLater(delay = 900): void {
     this.clearHideTimer();
-    if (this.settings.get().overlayPersistent) return;
     this.hideTimer = setTimeout(() => this.window?.hide(), delay);
-  }
-
-  preview(): void {
-    this.position();
-    this.showState('recording');
-    this.hideLater(1800);
-  }
-
-  reconcilePersistent(): void {
-    if (!this.window || this.window.isDestroyed()) return;
-    if (this.positioning) return;
-    if (this.settings.get().overlayPersistent) {
-      this.showState('idle');
-    } else {
-      this.window.hide();
-    }
   }
 
   private clearHideTimer(): void {

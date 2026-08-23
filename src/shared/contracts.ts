@@ -11,7 +11,6 @@ export interface AppSettings {
   backendId: string;
   shortcut: string;
   autoStart: boolean;
-  overlayPersistent: boolean;
   diagnosticLogging: boolean;
   overlayPosition: Point | null;
   loginNoticeShown: Record<string, boolean>;
@@ -43,7 +42,6 @@ export interface SettingsViewState {
   sessionState: SessionState;
   shortcut: string;
   autoStart: boolean;
-  overlayPersistent: boolean;
   diagnosticLogging: boolean;
   overlayPosition: Point;
   displays: DisplayInfo[];
