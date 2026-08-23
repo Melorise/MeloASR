@@ -36,5 +36,8 @@ tar -C %{buildroot} -xzf %{SOURCE0}
 /etc/xdg/autostart/meloasr.desktop
 
 %changelog
+* Sun Aug 23 2026 MeloASR contributors - 0.1.8-1
+- Fix Fcitx5 addon compatibility with Ubuntu 24.04.
+
 * Sun Aug 23 2026 MeloASR contributors - 0.1.7-1
 - Initial package
