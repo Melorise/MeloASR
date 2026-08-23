@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(meloasr-fcitx5 VERSION 0.1.11 LANGUAGES CXX)
+project(meloasr-fcitx5 VERSION 0.1.12 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 include(CTest)

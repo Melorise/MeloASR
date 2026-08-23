@@ -10,6 +10,8 @@ import { TrayController } from './tray-controller';
 import type { BackendStatusPayload, Point } from '../shared/contracts';
 
 app.setName('MeloASR');
+app.disableHardwareAcceleration();
+app.commandLine.appendSwitch('disable-gpu');
 const singleInstance = app.requestSingleInstanceLock();
 
 if (!singleInstance) {

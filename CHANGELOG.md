@@ -2,6 +2,12 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 的格式。
 
+## [0.1.12] - 2026-08-23
+
+### 变更
+
+- 全平台启动时强制禁用 Electron GPU 硬件加速，降低后台网页 renderer 的无效显存与内存占用。
+
 ## [0.1.11] - 2026-08-23
 
 ### 变更
