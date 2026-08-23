@@ -6,6 +6,8 @@ import type { BackendManager } from './backend-manager';
 import type { FcitxBridge } from './fcitx-bridge';
 import type { OverlayController } from './overlay-controller';
 
+const COMPLETION_INDICATOR_DURATION_MS = 450;
+
 export class SessionController extends EventEmitter {
   state: SessionState = 'idle';
   private mirroredText = '';
@@ -97,7 +99,7 @@ export class SessionController extends EventEmitter {
     this.state = 'idle';
     this.mirroredText = '';
     this.overlay.showState('done');
-    this.overlay.hideLater();
+    this.overlay.hideLater(COMPLETION_INDICATOR_DURATION_MS);
     this.emitState();
   }
 
