@@ -12,7 +12,7 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "meloasr";
-  version = "0.1.0";
+  version = "0.1.7";
 
   src = ../..;
 
@@ -82,7 +82,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   meta = {
     description = "Web-backed voice input for Fcitx5";
-    homepage = "https://example.invalid/meloasr";
+    homepage = "https://github.com/Melorise/MeloASR";
     license = lib.licenses.unfreeRedistributable;
     mainProgram = "meloasr";
     platforms = lib.platforms.linux;

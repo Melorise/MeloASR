@@ -1,10 +1,10 @@
 import type { BackendWebAdapter } from './contracts';
 import { qianwenDefinition } from './definitions';
-import { firstVisible, isUsableControl, operationalStatus } from './dom';
+import { controlDescription, firstVisible, isUsableControl, operationalStatus } from './dom';
 
 export const qianwenAdapter: BackendWebAdapter = {
   definition: qianwenDefinition,
-  stopDelayMs: 1_600,
+  stopCompletion: { minimumWaitMs: 250, quietWindowMs: 350, timeoutMs: 2_500 },
 
   findEditor(document) {
     return firstVisible(document, qianwenDefinition.editorSelector);
@@ -16,6 +16,12 @@ export const qianwenAdapter: BackendWebAdapter = {
     const icon = document.querySelector('[data-icon-type="qwpcicon-mic"]');
     const control = icon?.closest('button, [role="button"], [data-global-speaking-guide-anchor]') ?? icon?.parentElement;
     return control instanceof HTMLElement && isUsableControl(control) ? control : null;
+  },
+
+  isRecording(document) {
+    const microphone = this.findMicrophone(document);
+    return microphone?.getAttribute('aria-pressed') === 'true' ||
+      /停止语音|stop\s*(voice|recording|input)/i.test(microphone ? controlDescription(microphone) : '');
   },
 
   serialize(editor) {

@@ -5,15 +5,19 @@ declare global {
     meloSettings: {
       getState(): Promise<SettingsViewState>;
       setBackend(id: string): Promise<SettingsViewState>;
-      openDebug(): Promise<void>;
+      openDebug(confirmed?: boolean): Promise<void>;
       setPosition(position: Point, displayId: string): Promise<SettingsViewState>;
       setPreset(preset: string, displayId: string): Promise<SettingsViewState>;
       previewOverlay(): Promise<void>;
+      beginPositioning(): Promise<void>;
+      endPositioning(): Promise<void>;
       setShortcut(shortcut: string): Promise<SettingsViewState>;
       setAutoStart(enabled: boolean): Promise<SettingsViewState>;
       setOverlayPersistent(enabled: boolean): Promise<SettingsViewState>;
+      setDiagnosticLogging(enabled: boolean): Promise<SettingsViewState>;
       openRepository(): Promise<void>;
       onState(listener: (state: SettingsViewState) => void): void;
+      onLoginNotice(listener: (backendLabel: string) => void): void;
     };
     meloOverlay: {
       toggleRecording(): void;

@@ -1,6 +1,8 @@
 import { ipcRenderer } from 'electron';
 import type { BackendControlCommand, BackendPageStatus, BackendTranscriptPayload } from '../backends/contracts';
 import { getBackendWebAdapter } from '../backends/web-registry';
+import { shouldClickMicrophoneOnCancel } from './speech-session-state';
+import { shouldFinishAfterStop } from './stop-completion';
 
 const backendId = process.argv
   .find((argument) => argument.startsWith('--meloasr-backend='))
@@ -14,9 +16,28 @@ let stopping = false;
 let lastSpeechText = '';
 let emitScheduled = false;
 let stopTimer: ReturnType<typeof setTimeout> | undefined;
+let cancelTimer: ReturnType<typeof setTimeout> | undefined;
 let statusTimer: ReturnType<typeof setTimeout> | undefined;
 let transcriptRevision = 0;
 let lastStatusKey = '';
+let lastTranscriptAt = 0;
+
+function controlSnapshot(element: HTMLElement | null): Record<string, unknown> {
+  if (!element) return { found: false };
+  return {
+    found: true,
+    tag: element.tagName,
+    ariaLabel: element.getAttribute('aria-label'),
+    ariaPressed: element.getAttribute('aria-pressed'),
+    title: element.getAttribute('title'),
+    disabled: element.matches('[disabled], [aria-disabled="true"]'),
+    className: String(element.className).slice(0, 240)
+  };
+}
+
+function diagnose(stage: string, details: Record<string, unknown> = {}): void {
+  emit('backend-diagnostic', { stage, active, stopping, visibility: document.visibilityState, ...details });
+}
 
 function emit(channel: string, value: Record<string, unknown> = {}): void {
   ipcRenderer.send(channel, { backend: backendId, ...value });
@@ -56,6 +77,8 @@ function emitCurrentEditorText(): void {
   if (text === lastSpeechText) return;
   lastSpeechText = text;
   transcriptRevision += 1;
+  lastTranscriptAt = Date.now();
+  diagnose('transcript', { revision: transcriptRevision, textLength: text.length });
   const payload: Omit<BackendTranscriptPayload, 'backend'> = { text, revision: transcriptRevision };
   emit('backend-transcript', payload);
 }
@@ -91,18 +114,23 @@ function placeCaretAtEnd(editor: HTMLElement): void {
 
 function resetSession(): void {
   clearTimeout(stopTimer);
+  clearTimeout(cancelTimer);
   active = false;
   stopping = false;
+  lastTranscriptAt = 0;
   editorObserver?.disconnect();
+  diagnose('session-reset');
 }
 
 function fail(message: string): void {
+  diagnose('failure', { message });
   resetSession();
   emit('backend-start-error', { message });
   emitPageStatus(true);
 }
 
 function startSpeech(): void {
+  diagnose('start-received');
   if (!adapter) return;
   const status = adapter.detectPageStatus(document);
   if (!status.ready) {
@@ -119,34 +147,98 @@ function startSpeech(): void {
     return;
   }
 
+  diagnose('start-targets', {
+    editorLength: adapter.serialize(editor).length,
+    microphone: controlSnapshot(microphone)
+  });
+
   clearTimeout(stopTimer);
   placeCaretAtEnd(editor);
   lastSpeechText = adapter.serialize(editor);
   transcriptRevision = 0;
+  lastTranscriptAt = Date.now();
   active = true;
   stopping = false;
   observeEditor(editor);
   microphone.click();
+  diagnose('start-clicked', { microphone: controlSnapshot(adapter.findMicrophone(document)) });
+  window.setTimeout(() => diagnose('start-after-250ms', {
+    microphone: controlSnapshot(adapter.findMicrophone(document)),
+    editorLength: adapter.findEditor(document) ? adapter.serialize(adapter.findEditor(document)!).length : null
+  }), 250);
+  window.setTimeout(() => diagnose('start-after-1000ms', {
+    microphone: controlSnapshot(adapter.findMicrophone(document)),
+    editorLength: adapter.findEditor(document) ? adapter.serialize(adapter.findEditor(document)!).length : null
+  }), 1_000);
 }
 
 function stopSpeech(): void {
+  diagnose('stop-received', { microphone: controlSnapshot(adapter?.findMicrophone(document) ?? null) });
   if (!active || stopping || !adapter) return;
   stopping = true;
+  const stoppedAt = Date.now();
+  const wasRecordingAtStop = adapter.isRecording(document);
   adapter.findMicrophone(document)?.click();
-  clearTimeout(stopTimer);
-  stopTimer = setTimeout(() => {
+  diagnose('stop-clicked', { microphone: controlSnapshot(adapter.findMicrophone(document)) });
+  const finish = (): void => {
     emitCurrentEditorText();
     resetSession();
     emit('backend-session-ended', { text: lastSpeechText, revision: transcriptRevision });
     emitPageStatus(true);
-  }, adapter.stopDelayMs);
+  };
+  const checkCompletion = (): void => {
+    if (!active || !stopping || !adapter) return;
+    const now = Date.now();
+    if (shouldFinishAfterStop({
+      elapsedMs: now - stoppedAt,
+      quietMs: now - lastTranscriptAt,
+      wasRecordingAtStop,
+      isRecording: adapter.isRecording(document),
+      ...adapter.stopCompletion
+    })) {
+      diagnose('stop-complete', { elapsedMs: now - stoppedAt });
+      finish();
+      return;
+    }
+    stopTimer = setTimeout(checkCompletion, 75);
+  };
+  clearTimeout(stopTimer);
+  stopTimer = setTimeout(checkCompletion, 75);
 }
 
 function cancelSpeech(): void {
+  diagnose('cancel-received', { microphone: controlSnapshot(adapter?.findMicrophone(document) ?? null) });
   if (!active || !adapter) return;
-  adapter.findMicrophone(document)?.click();
-  resetSession();
-  lastSpeechText = '';
+  if (!shouldClickMicrophoneOnCancel(active, stopping)) {
+    diagnose('cancel-click-skipped', { reason: 'stop-already-requested' });
+    resetSession();
+    lastSpeechText = '';
+    return;
+  }
+
+  // 网页的启动点击是异步的。若在按钮仍显示“语音输入”时再次点击，
+  // 元宝会在稍后仍进入录音，造成前后端会话分叉。
+  const deadline = Date.now() + 1_500;
+  const stopWhenRecording = (): void => {
+    if (!active || !adapter) return;
+    const microphone = adapter.findMicrophone(document);
+    if (adapter.isRecording(document)) {
+      microphone?.click();
+      diagnose('cancel-clicked', { microphone: controlSnapshot(adapter.findMicrophone(document)) });
+      resetSession();
+      lastSpeechText = '';
+      return;
+    }
+    if (Date.now() >= deadline) {
+      diagnose('cancel-timeout', { microphone: controlSnapshot(microphone) });
+      resetSession();
+      lastSpeechText = '';
+      return;
+    }
+    cancelTimer = setTimeout(stopWhenRecording, 50);
+  };
+  clearTimeout(cancelTimer);
+  cancelTimer = setTimeout(stopWhenRecording, 50);
 }
 
 ipcRenderer.on('backend-control', (_event, command: BackendControlCommand) => {

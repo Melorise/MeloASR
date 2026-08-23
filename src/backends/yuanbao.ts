@@ -4,7 +4,7 @@ import { controlDescription, firstVisible, isUsableControl, operationalStatus } 
 
 export const yuanbaoAdapter: BackendWebAdapter = {
   definition: yuanbaoDefinition,
-  stopDelayMs: 3_500,
+  stopCompletion: { minimumWaitMs: 250, quietWindowMs: 450, timeoutMs: 4_500 },
 
   findEditor(document) {
     return firstVisible(document, yuanbaoDefinition.editorSelector);
@@ -30,6 +30,12 @@ export const yuanbaoAdapter: BackendWebAdapter = {
         isUsableControl(element)
       );
     return control instanceof HTMLElement ? control : null;
+  },
+
+  isRecording(document) {
+    const microphone = this.findMicrophone(document);
+    return microphone?.getAttribute('aria-pressed') === 'true' ||
+      /停止语音|stop\s*(voice|recording|input)/i.test(microphone ? controlDescription(microphone) : '');
   },
 
   serialize(editor) {

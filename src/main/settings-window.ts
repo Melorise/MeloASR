@@ -2,6 +2,7 @@ import { app, BrowserWindow, screen, shell } from 'electron';
 import path from 'node:path';
 import type { SettingsViewState } from '../shared/contracts';
 import type { BackendManager } from './backend-manager';
+import { resolveDebugLoginAction } from './debug-login-flow';
 import type { OverlayController } from './overlay-controller';
 import type { SessionController } from './session-controller';
 import type { SettingsStore } from './settings-store';
@@ -39,6 +40,7 @@ export class SettingsWindow {
       event.preventDefault();
       this.window?.hide();
     });
+    this.window.on('hide', () => this.overlay.endPositioning());
     await this.window.loadFile(path.join(__dirname, '..', 'renderer', 'settings.html'));
   }
 
@@ -53,6 +55,23 @@ export class SettingsWindow {
     this.window.webContents.send('settings:state', this.state());
   }
 
+  async openDebug(confirmed = false): Promise<void> {
+    const current = this.settings.get();
+    const definition = this.backends.activeDefinition();
+    const decision = resolveDebugLoginAction(Boolean(current.loginNoticeShown[definition.id]), confirmed);
+    if (decision.action === 'prompt') {
+      this.show();
+      this.window?.webContents.send('settings:login-notice', { backendLabel: definition.label });
+      return;
+    }
+    if (decision.markShown) {
+      this.settings.update({
+        loginNoticeShown: { ...current.loginNoticeShown, [definition.id]: true }
+      });
+    }
+    await this.backends.showDebug(definition.id);
+  }
+
   state(): SettingsViewState {
     const current = this.settings.get();
     const position = this.overlay.position(current.overlayPosition);
@@ -63,6 +82,7 @@ export class SettingsWindow {
       shortcut: current.shortcut,
       autoStart: current.autoStart,
       overlayPersistent: current.overlayPersistent,
+      diagnosticLogging: current.diagnosticLogging,
       overlayPosition: position,
       displays: screen.getAllDisplays().map((display, index) => ({
         id: String(display.id),

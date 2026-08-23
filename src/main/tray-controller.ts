@@ -1,23 +1,21 @@
-import { Menu, Tray, nativeImage } from 'electron';
+import { app, Menu, Tray, nativeImage } from 'electron';
+import path from 'node:path';
 import type { BackendManager } from './backend-manager';
 import type { SettingsWindow } from './settings-window';
 
 type TrayState = 'loading' | 'ready' | 'login-required' | 'error';
 
-const COLORS: Record<TrayState, string> = {
-  loading: '#e6a23c',
-  ready: '#22b573',
-  'login-required': '#ef6c57',
-  error: '#d9465f'
+const ICONS: Record<TrayState, string> = {
+  loading: 'tray-loading.png',
+  ready: 'tray-ready.png',
+  'login-required': 'tray-login-required.png',
+  error: 'tray-error.png'
 };
 
 function trayImage(state: TrayState): Electron.NativeImage {
-  const color = COLORS[state];
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-    <circle cx="16" cy="16" r="14" fill="${color}"/>
-    <path d="M8 19v-6h3v6zm5 4V9h3v14zm5-2V11h3v10zm5-3v-4h3v4z" fill="white"/>
-  </svg>`;
-  return nativeImage.createFromDataURL(`data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`).resize({ width: 22, height: 22 });
+  const image = nativeImage.createFromPath(path.join(app.getAppPath(), 'dist', 'assets', ICONS[state]));
+  image.setTemplateImage(false);
+  return image;
 }
 
 export class TrayController {
@@ -47,7 +45,7 @@ export class TrayController {
     this.tray.setToolTip(`MeloASR · ${status.detail}`);
     this.tray.setContextMenu(Menu.buildFromTemplate([
       { label: '设置', click: () => this.settingsWindow.show() },
-      { label: '打开登录/调试页面', click: () => void this.backends.showDebug() },
+      { label: '打开登录/调试页面', click: () => void this.settingsWindow.openDebug() },
       { type: 'separator' },
       { label: '重启', click: this.onRestart },
       { label: '退出', click: this.onQuit }

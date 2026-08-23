@@ -1,9 +1,9 @@
 pkgname=meloasr
-pkgver=0.1.0
+pkgver=0.1.7
 pkgrel=1
 pkgdesc='Web-backed voice input for Fcitx5'
 arch=('x86_64')
-url='https://example.invalid/meloasr'
+url='https://github.com/Melorise/MeloASR'
 license=('custom')
 depends=('fcitx5' 'gtk3' 'nss' 'libxss' 'mesa' 'alsa-lib')
 makedepends=('nodejs' 'npm' 'cmake' 'gcc' 'nlohmann-json')

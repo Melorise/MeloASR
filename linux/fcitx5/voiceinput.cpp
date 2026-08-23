@@ -28,11 +28,15 @@
 #include <fcitx/text.h>
 
 #include "protocolsession.h"
+#include "preeditfinalizer.h"
+#include "keyeventclassifier.h"
 
 namespace {
 
 constexpr int kProtocolVersion = 2;
 constexpr std::size_t kMaxBufferBytes = 1024 * 1024;
+
+#define MELOASR_DIAGNOSTIC_INFO if (!diagnosticLogging_) {} else FCITX_INFO()
 
 class VoiceInputAddon final : public fcitx::AddonInstance {
 public:
@@ -50,6 +54,8 @@ public:
             fcitx::EventType::InputContextFocusOut,
             fcitx::EventWatcherPhase::PostInputMethod,
             [this](fcitx::Event &event) {
+                MELOASR_DIAGNOSTIC_INFO << "MeloASR：InputContext focusOut，取消当前会话 active="
+                             << session_.active() << " awaiting=" << awaitingStart_;
                 cancelForContext(static_cast<fcitx::InputContextEvent &>(event).inputContext());
             });
         focusInWatcher_ = instance_->watchEvent(
@@ -63,6 +69,8 @@ public:
             fcitx::EventType::InputContextReset,
             fcitx::EventWatcherPhase::PostInputMethod,
             [this](fcitx::Event &event) {
+                MELOASR_DIAGNOSTIC_INFO << "MeloASR：InputContext reset，取消当前会话 active="
+                             << session_.active() << " awaiting=" << awaitingStart_;
                 cancelForContext(static_cast<fcitx::InputContextEvent &>(event).inputContext());
             });
         destroyedWatcher_ = instance_->watchEvent(
@@ -72,8 +80,9 @@ public:
                 auto *context = static_cast<fcitx::InputContextEvent &>(event).inputContext();
                 if (context == focusedInputContext_) focusedInputContext_ = nullptr;
                 if (context == inputContext_) {
+                    MELOASR_DIAGNOSTIC_INFO << "MeloASR：InputContext destroyed，取消当前会话";
                     sendControl("request-cancel");
-                    resetLocalState(false, false);
+                    resetLocalState(false);
                 }
             });
         reconnectTimer_ = instance_->eventLoop().addTimeEvent(
@@ -91,24 +100,28 @@ public:
     ~VoiceInputAddon() override {
         if (inputContext_) {
             clearPreedit();
-            restorePreeditState();
         }
         disconnectSocket();
     }
 
 private:
     void handleKeyEvent(fcitx::KeyEvent &event) {
-        const bool isTriggerPress = !event.isRelease() && event.key().check(trigger_);
-        const bool isTriggerRelease = event.isRelease() && held_ &&
-                                      event.rawKey().sym() == trigger_.sym();
+        const VoiceKeyAction action = classifyVoiceKeyEvent(
+            event.isRelease(), held_, event.key().check(trigger_),
+            event.rawKey().sym() == trigger_.sym(),
+            event.rawKey().states().test(fcitx::KeyState::Repeat),
+            event.key().isModifier(), session_.active() || awaitingStart_);
 
-        if (isTriggerPress) {
+        if (action == VoiceKeyAction::ConsumeHeldTrigger) {
             event.filterAndAccept();
-            if (event.rawKey().states().test(fcitx::KeyState::Repeat)) return;
-            FCITX_INFO() << "网页语音输入：快捷键按下 held=" << held_
+            return;
+        }
+
+        if (action == VoiceKeyAction::Start) {
+            event.filterAndAccept();
+            MELOASR_DIAGNOSTIC_INFO << "网页语音输入：快捷键按下 held=" << held_
                          << " awaiting=" << awaitingStart_
                          << " active=" << session_.active();
-            if (held_) return;
             if (!ensureConnected()) {
                 FCITX_WARN() << "网页语音输入：Electron Socket 尚未就绪";
                 return;
@@ -118,20 +131,20 @@ private:
             return;
         }
 
-        if (isTriggerRelease) {
+        if (action == VoiceKeyAction::Stop) {
             event.filterAndAccept();
-            FCITX_INFO() << "网页语音输入：快捷键松开 awaiting=" << awaitingStart_
+            MELOASR_DIAGNOSTIC_INFO << "网页语音输入：快捷键松开 awaiting=" << awaitingStart_
                          << " active=" << session_.active();
             held_ = false;
             if (awaitingStart_ || session_.active()) sendControl("request-stop");
             return;
         }
 
-        if (!session_.active() && !awaitingStart_) return;
-        if (event.isRelease() || event.key().isModifier()) return;
+        if (action == VoiceKeyAction::Pass) return;
 
         if (event.key().check(FcitxKey_Escape)) {
             event.filterAndAccept();
+            MELOASR_DIAGNOSTIC_INFO << "MeloASR：录音中收到 Escape，取消当前会话";
             sendControl("request-cancel");
             clearPreedit();
             resetLocalState(false);
@@ -139,6 +152,9 @@ private:
         }
 
         // 用户开始键盘输入时，立即取消语音会话，并让该按键继续交给原输入法。
+        MELOASR_DIAGNOSTIC_INFO << "MeloASR：录音中收到其它按键，取消当前会话 key="
+                     << event.key().toString() << " rawKey=" << event.rawKey().toString()
+                     << " repeat=" << event.rawKey().states().test(fcitx::KeyState::Repeat);
         sendControl("request-cancel");
         clearPreedit();
         resetLocalState(false);
@@ -152,9 +168,6 @@ private:
             return false;
         }
         inputContext_ = context;
-        preeditWasEnabled_ = inputContext_->isPreeditEnabled();
-        preeditStateCaptured_ = true;
-        inputContext_->setEnablePreedit(true);
         awaitingStart_ = true;
         sendControl("request-start");
         return true;
@@ -167,7 +180,7 @@ private:
             if (probe > 0 || (probe < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))) {
                 return true;
             }
-            FCITX_INFO() << "网页语音输入：检测到失效的 Electron Socket，立即重连";
+            MELOASR_DIAGNOSTIC_INFO << "网页语音输入：检测到失效的 Electron Socket，立即重连";
             handleDisconnect();
         }
         const char *runtimeDir = std::getenv("XDG_RUNTIME_DIR");
@@ -248,6 +261,9 @@ private:
             return;
         }
         if (type == "configure") {
+            if (message.contains("diagnosticLogging") && message["diagnosticLogging"].is_boolean()) {
+                diagnosticLogging_ = message["diagnosticLogging"].get<bool>();
+            }
             if (!message.contains("shortcut") || !message["shortcut"].is_string() ||
                 awaitingStart_ || session_.active()) return;
             fcitx::Key candidate(message["shortcut"].get<std::string>());
@@ -256,7 +272,7 @@ private:
                 return;
             }
             trigger_ = std::move(candidate);
-            FCITX_INFO() << "MeloASR：快捷键已更新为 " << trigger_.toString();
+            MELOASR_DIAGNOSTIC_INFO << "MeloASR：快捷键已更新为 " << trigger_.toString();
             return;
         }
         if (type == "activate") {
@@ -270,14 +286,17 @@ private:
             if (!message.contains("sessionId") || !message["sessionId"].is_string()) return;
             session_.start(message["sessionId"].get<std::string>());
             awaitingStart_ = false;
-            FCITX_INFO() << "网页语音输入：会话开始，clientPreedit="
+            MELOASR_DIAGNOSTIC_INFO << "网页语音输入：会话开始，clientPreedit="
                          << inputContext_->capabilityFlags().test(fcitx::CapabilityFlag::Preedit);
-            setPreedit("");
+            // 新会话尚无文本；重复发布空 preedit 会使部分 frontend 立刻 reset。
             return;
         }
         if (type == "cancel") {
             const std::string incoming = message.value("sessionId", std::string());
             if (!incoming.empty() && !session_.matches(incoming)) return;
+            MELOASR_DIAGNOSTIC_INFO << "MeloASR：收到 Electron cancel，sessionIdEmpty="
+                         << incoming.empty() << " message="
+                         << message.value("message", std::string());
             clearPreedit();
             resetLocalState(false);
             return;
@@ -288,14 +307,17 @@ private:
             const std::int64_t incomingRevision = message["revision"].get<std::int64_t>();
             if (!session_.accept(message.value("sessionId", std::string()), incomingRevision)) return;
             currentText_ = message["text"].get<std::string>();
-            FCITX_INFO() << "网页语音输入：收到 " << type << " revision="
+            MELOASR_DIAGNOSTIC_INFO << "网页语音输入：收到 " << type << " revision="
                          << incomingRevision << " bytes=" << currentText_.size();
             setPreedit(currentText_);
             if (type == "finish") {
-                if (inputContext_ && inputContext_->hasFocus() && !currentText_.empty()) {
-                    inputContext_->commitString(currentText_);
-                }
-                clearPreedit();
+                finalizePreedit(
+                    currentText_, [this]() { clearPreedit(); },
+                    [this](const std::string &text) {
+                        if (inputContext_ && inputContext_->hasFocus()) {
+                            inputContext_->commitString(text);
+                        }
+                    });
                 resetLocalState(false);
             }
         }
@@ -325,15 +347,7 @@ private:
         resetLocalState(false);
     }
 
-    void restorePreeditState() {
-        if (inputContext_ && preeditStateCaptured_) {
-            inputContext_->setEnablePreedit(preeditWasEnabled_);
-        }
-        preeditStateCaptured_ = false;
-    }
-
-    void resetLocalState(bool keepContext, bool restorePreedit = true) {
-        if (restorePreedit) restorePreeditState();
+    void resetLocalState(bool keepContext) {
         held_ = false;
         awaitingStart_ = false;
         session_.reset();
@@ -361,6 +375,8 @@ private:
     }
 
     void handleDisconnect() {
+        MELOASR_DIAGNOSTIC_INFO << "MeloASR：Electron Socket 断开，取消当前会话 active="
+                     << session_.active() << " awaiting=" << awaitingStart_;
         clearPreedit();
         resetLocalState(false);
         disconnectSocket();
@@ -379,8 +395,7 @@ private:
     fcitx::InputContext *focusedInputContext_ = nullptr;
     bool held_ = false;
     bool awaitingStart_ = false;
-    bool preeditStateCaptured_ = false;
-    bool preeditWasEnabled_ = true;
+    bool diagnosticLogging_ = false;
     ProtocolSession session_;
     std::string currentText_;
     int socketFd_ = -1;

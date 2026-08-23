@@ -9,6 +9,7 @@ const SIZE = { width: 88, height: 88 };
 export class OverlayController {
   window: BrowserWindow | null = null;
   private hideTimer: NodeJS.Timeout | null = null;
+  private positioning = false;
 
   constructor(private readonly settings: SettingsStore) {}
 
@@ -18,6 +19,7 @@ export class OverlayController {
       show: false,
       frame: false,
       transparent: true,
+      type: 'toolbar',
       resizable: false,
       movable: false,
       alwaysOnTop: true,
@@ -62,6 +64,23 @@ export class OverlayController {
     return this.applyPosition(presetPosition(display.workArea, SIZE, preset), String(display.id));
   }
 
+  beginPositioning(): void {
+    if (!this.window || this.window.isDestroyed()) return;
+    this.positioning = true;
+    this.clearHideTimer();
+    this.window.setIgnoreMouseEvents(true);
+    this.window.webContents.send('overlay-state', { state: 'idle' });
+    this.window.showInactive();
+  }
+
+  endPositioning(): void {
+    if (!this.positioning) return;
+    this.positioning = false;
+    if (!this.window || this.window.isDestroyed()) return;
+    this.window.setIgnoreMouseEvents(false);
+    this.reconcilePersistent();
+  }
+
   showState(state: SessionState | 'done' | 'error'): void {
     if (!this.window || this.window.isDestroyed()) return;
     this.clearHideTimer();
@@ -83,6 +102,7 @@ export class OverlayController {
 
   reconcilePersistent(): void {
     if (!this.window || this.window.isDestroyed()) return;
+    if (this.positioning) return;
     if (this.settings.get().overlayPersistent) {
       this.showState('idle');
     } else {

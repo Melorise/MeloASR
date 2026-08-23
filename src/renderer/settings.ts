@@ -11,6 +11,7 @@ interface SettingsViewState {
   shortcut: string;
   autoStart: boolean;
   overlayPersistent: boolean;
+  diagnosticLogging: boolean;
   overlayPosition: { x: number; y: number };
   displays: Array<{ id: string; label: string; workArea: { x: number; y: number; width: number; height: number } }>;
   version: string;
@@ -26,11 +27,19 @@ const y = document.querySelector<HTMLInputElement>('#position-y')!;
 const shortcut = document.querySelector<HTMLButtonElement>('#shortcut')!;
 const autoStart = document.querySelector<HTMLInputElement>('#auto-start')!;
 const overlayPersistent = document.querySelector<HTMLInputElement>('#overlay-persistent')!;
+const diagnosticLogging = document.querySelector<HTMLInputElement>('#diagnostic-logging')!;
 const version = document.querySelector<HTMLElement>('#version')!;
 const repository = document.querySelector<HTMLButtonElement>('#repository')!;
 const message = document.querySelector<HTMLElement>('#message')!;
+const settingsView = document.querySelector<HTMLElement>('body > main')!;
+const positionView = document.querySelector<HTMLElement>('#position-view')!;
+const positionScreen = document.querySelector<HTMLElement>('#position-screen')!;
+const positionBall = document.querySelector<HTMLElement>('#position-ball')!;
+const loginNotice = document.querySelector<HTMLDialogElement>('#login-notice')!;
+const loginNoticeTitle = document.querySelector<HTMLElement>('#login-notice-title')!;
 let state: SettingsViewState;
 let capturingShortcut = false;
+let positionMode = false;
 
 function statusText(status: BackendRuntimeStatus): string {
   if (status.ready) return '已就绪';
@@ -59,12 +68,23 @@ function render(next: SettingsViewState): void {
     ? previousDisplay : (containing?.id ?? next.displays[0]?.id ?? '');
   x.value = String(next.overlayPosition.x);
   y.value = String(next.overlayPosition.y);
+  renderPositionPreview(next);
   shortcut.textContent = capturingShortcut ? '请按下新快捷键…' : displayShortcut(next.shortcut);
   autoStart.checked = next.autoStart;
   overlayPersistent.checked = next.overlayPersistent;
+  diagnosticLogging.checked = next.diagnosticLogging;
   version.textContent = next.version;
   repository.textContent = next.repositoryUrl ?? '尚未配置';
   repository.disabled = !next.repositoryUrl;
+}
+
+function renderPositionPreview(next: SettingsViewState): void {
+  const area = next.displays.find((item) => item.id === display.value)?.workArea ?? next.displays[0]?.workArea;
+  if (!area) return;
+  const px = Math.max(0, Math.min(area.width, next.overlayPosition.x - area.x));
+  const py = Math.max(0, Math.min(area.height, next.overlayPosition.y - area.y));
+  positionBall.style.left = `${(px / area.width) * 100}%`;
+  positionBall.style.top = `${(py / area.height) * 100}%`;
 }
 
 function displayShortcut(value: string): string {
@@ -101,13 +121,50 @@ async function applyPosition(): Promise<void> {
 
 backend.addEventListener('change', () => void apply(() => window.meloSettings.setBackend(backend.value)));
 document.querySelector('#open-debug')!.addEventListener('click', () => void window.meloSettings.openDebug());
+document.querySelector('#open-position')!.addEventListener('click', () => {
+  positionMode = true;
+  settingsView.style.display = 'none';
+  positionView.style.display = 'grid';
+  void window.meloSettings.beginPositioning();
+  renderPositionPreview(state);
+});
+document.querySelector('#back-settings')!.addEventListener('click', () => {
+  positionMode = false;
+  positionView.style.display = 'none';
+  settingsView.style.display = 'grid';
+  void window.meloSettings.endPositioning();
+});
+document.querySelector('#login-notice-cancel')!.addEventListener('click', () => loginNotice.close());
+document.querySelector('#login-notice-continue')!.addEventListener('click', () => {
+  loginNotice.close();
+  void window.meloSettings.openDebug(true);
+});
 document.querySelectorAll<HTMLButtonElement>('[data-preset]').forEach((button) => {
   button.addEventListener('click', () => void apply(
     () => window.meloSettings.setPreset(button.dataset.preset!, display.value), '位置已保存'
   ));
 });
-document.querySelector('#apply-position')!.addEventListener('click', () => void applyPosition());
-document.querySelector('#preview-overlay')!.addEventListener('click', () => void window.meloSettings.previewOverlay());
+
+async function nudge(direction: string): Promise<void> {
+  if (direction === 'center') {
+    await apply(() => window.meloSettings.setPreset('middle-center', display.value), '位置已保存');
+    return;
+  }
+  const step = 1;
+  const next = { x: Number(x.value), y: Number(y.value) };
+  if (direction === 'left') next.x -= step;
+  if (direction === 'right') next.x += step;
+  if (direction === 'up') next.y -= step;
+  if (direction === 'down') next.y += step;
+  x.value = String(next.x);
+  y.value = String(next.y);
+  await applyPosition();
+}
+document.querySelectorAll<HTMLButtonElement>('[data-direction]').forEach((button) => {
+  button.addEventListener('click', () => void nudge(button.dataset.direction!));
+});
+x.addEventListener('change', () => void applyPosition());
+y.addEventListener('change', () => void applyPosition());
 
 document.addEventListener('keydown', (event) => {
   if (capturingShortcut) {
@@ -123,8 +180,8 @@ document.addEventListener('keydown', (event) => {
     void apply(() => window.meloSettings.setShortcut(value), '快捷键已保存');
     return;
   }
-  if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
-  if ((event.target as HTMLElement).matches('select, button, input[type="checkbox"]')) return;
+  if (!positionMode || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
+  if ((event.target as HTMLElement).matches('select, input')) return;
   event.preventDefault();
   const step = event.shiftKey ? 10 : 1;
   if (event.key === 'ArrowLeft') x.value = String(Number(x.value) - step);
@@ -143,6 +200,16 @@ autoStart.addEventListener('change', () => void apply(() => window.meloSettings.
 overlayPersistent.addEventListener('change', () => void apply(
   () => window.meloSettings.setOverlayPersistent(overlayPersistent.checked)
 ));
+diagnosticLogging.addEventListener('change', () => void apply(
+  () => window.meloSettings.setDiagnosticLogging(diagnosticLogging.checked)
+));
 repository.addEventListener('click', () => void window.meloSettings.openRepository());
 window.meloSettings.onState(render);
+window.meloSettings.onLoginNotice((backendLabel) => {
+  loginNoticeTitle.textContent = `登录${backendLabel}`;
+  if (!loginNotice.open) loginNotice.showModal();
+});
+window.addEventListener('beforeunload', () => {
+  if (positionMode) void window.meloSettings.endPositioning();
+});
 void window.meloSettings.getState().then(render).catch((error: Error) => { message.textContent = error.message; });

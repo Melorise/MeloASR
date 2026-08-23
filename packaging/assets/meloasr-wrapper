@@ -1,3 +1,2 @@
 #!/bin/sh
-exec /opt/meloasr/meloasr "$@"
-
+exec /opt/meloasr/meloasr --ozone-platform=x11 "$@"

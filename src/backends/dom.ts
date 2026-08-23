@@ -1,4 +1,5 @@
-import type { BackendLoginStatus, BackendPageStatus } from './contracts';
+import type { BackendPageStatus } from './contracts';
+import { decideOperationalStatus } from './status-decision';
 
 export function isVisible(element: Element | null): element is HTMLElement {
   if (!(element instanceof HTMLElement)) return false;
@@ -13,7 +14,7 @@ export function isUsableControl(element: Element | null): element is HTMLElement
 
 export function firstVisible(document: Document, selector: string): HTMLElement | null {
   const elements = Array.from(document.querySelectorAll(selector));
-  return elements.find(isVisible) ?? (elements[0] instanceof HTMLElement ? elements[0] : null);
+  return elements.find(isVisible) ?? null;
 }
 
 export function controlDescription(element: Element): string {
@@ -22,13 +23,14 @@ export function controlDescription(element: Element): string {
     element.getAttribute('title'),
     element.getAttribute('data-tooltip'),
     element.textContent,
+    element.getAttribute('value'),
     element.getAttribute('class'),
     element.querySelector('svg')?.getAttribute('class')
   ].filter(Boolean).join(' ');
 }
 
 export function findSemanticControl(document: Document, pattern: RegExp): HTMLElement | null {
-  const control = Array.from(document.querySelectorAll('button, a, [role="button"]'))
+  const control = Array.from(document.querySelectorAll('button, a, [role="button"], input[type="button"], input[type="submit"]'))
     .find((element) => pattern.test(controlDescription(element)) && isUsableControl(element));
   return control instanceof HTMLElement ? control : null;
 }
@@ -39,20 +41,6 @@ export function operationalStatus(
   microphone: HTMLElement | null,
   loginPattern: RegExp
 ): BackendPageStatus {
-  if (editor && microphone) return { loginStatus: 'logged-in', ready: true };
-  if (editor) {
-    return {
-      loginStatus: 'logged-in',
-      ready: false,
-      message: '语音入口尚未就绪'
-    };
-  }
-
   const loginControl = findSemanticControl(document, loginPattern);
-  const loginStatus: BackendLoginStatus = loginControl ? 'logged-out' : 'unknown';
-  return {
-    loginStatus,
-    ready: false,
-    message: loginControl ? '尚未登录' : '页面尚未进入可语音输入状态'
-  };
+  return decideOperationalStatus(Boolean(editor), Boolean(microphone), Boolean(loginControl));
 }

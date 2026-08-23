@@ -3,7 +3,7 @@ Version:        %{meloasr_version}
 Release:        1%{?dist}
 Summary:        Web-backed voice input for Fcitx5
 License:        LicenseRef-Proprietary
-URL:            https://example.invalid/meloasr
+URL:            https://github.com/Melorise/MeloASR
 Source0:        meloasr-root.tar.gz
 
 Requires:       fcitx5
@@ -36,5 +36,5 @@ tar -C %{buildroot} -xzf %{SOURCE0}
 /etc/xdg/autostart/meloasr.desktop
 
 %changelog
-* Sun Aug 23 2026 MeloASR contributors - 0.1.0-1
+* Sun Aug 23 2026 MeloASR contributors - 0.1.7-1
 - Initial package

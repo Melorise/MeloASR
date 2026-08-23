@@ -10,12 +10,12 @@
     <p>MeloASR connects supported web speech-recognition backends to the active Fcitx5 input context.</p>
     <p xml:lang="zh-CN">MeloASR 将支持的网页语音识别后端连接到当前 Fcitx5 输入上下文。</p>
   </description>
-  <url type="homepage">https://example.invalid/meloasr</url>
+  <url type="homepage">https://github.com/Melorise/MeloASR</url>
   <launchable type="desktop-id">meloasr.desktop</launchable>
   <provides>
     <binary>meloasr</binary>
   </provides>
   <releases>
-    <release version="0.1.0" date="2026-08-23"/>
+    <release version="0.1.7" date="2026-08-23"/>
   </releases>
 </component>

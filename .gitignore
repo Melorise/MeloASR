@@ -5,3 +5,5 @@ dist-test/
 release/
 packaging/out/
 chatgpt_amd64.deb
+backend.js
+settings.html

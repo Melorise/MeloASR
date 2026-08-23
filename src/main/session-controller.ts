@@ -78,6 +78,7 @@ export class SessionController extends EventEmitter {
 
   cancel(message = '语音输入已取消'): void {
     if (!['starting', 'recording', 'stopping'].includes(this.state)) return;
+    console.warn(`[MeloASR 会话取消] state=${this.state} reason=${message}`);
     this.generation += 1;
     this.stopRequestedDuringStart = false;
     this.backends.activePage()?.webContents.send('backend-control', {
@@ -109,6 +110,7 @@ export class SessionController extends EventEmitter {
   }
 
   backendError(message: string): void {
+    console.error(`[MeloASR 后端错误] state=${this.state} reason=${message}`);
     if (this.bridge.activeSession) this.bridge.cancel(); else this.bridge.rejectStart(message);
     this.state = 'idle';
     this.mirroredText = '';

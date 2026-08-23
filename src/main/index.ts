@@ -29,12 +29,13 @@ async function bootstrap(): Promise<void> {
   catch (error) { console.error('[开机自启动设置失败]', error); }
 
   const bridge = new FcitxBridge();
-  bridge.configure(currentSettings.shortcut);
+  bridge.configure(currentSettings.shortcut, currentSettings.diagnosticLogging);
   const backends = new BackendManager(settings);
   const overlay = new OverlayController(settings);
   await overlay.create();
   const sessions = new SessionController(backends, bridge, overlay);
-  const repositoryUrl = process.env.MELOASR_REPOSITORY_URL?.trim() || null;
+  const repositoryUrl = process.env.MELOASR_REPOSITORY_URL?.trim() ||
+    'https://github.com/Melorise/MeloASR';
   const settingsWindow = new SettingsWindow(settings, backends, overlay, sessions, repositoryUrl);
   const settingsWindowReady = settingsWindow.create();
   registerIpc({ settings, autoStart, bridge, backends, overlay, sessions, settingsWindow });
@@ -61,7 +62,7 @@ async function bootstrap(): Promise<void> {
   settings.on('changed', () => settingsWindow.publish());
 
   await bridge.start();
-  bridge.configure(settings.get().shortcut);
+  bridge.configure(settings.get().shortcut, settings.get().diagnosticLogging);
   await backends.ensure(settings.get().backendId);
   tray.refresh();
 
@@ -100,9 +101,9 @@ function registerIpc(services: Services): void {
     await backends.select(id);
     return settingsWindow.state();
   });
-  ipcMain.handle('settings:open-debug', async (event) => {
+  ipcMain.handle('settings:open-debug', async (event, confirmed: unknown) => {
     if (!settingsSender(event.sender.id)) throw new Error('拒绝未授权的窗口请求');
-    await backends.showDebug();
+    await settingsWindow.openDebug(confirmed === true);
   });
   ipcMain.handle('settings:set-position', (event, point: Point, displayId: string) => {
     if (!settingsSender(event.sender.id) || !isPoint(point)) throw new Error('无效的悬浮球坐标');
@@ -118,12 +119,20 @@ function registerIpc(services: Services): void {
     if (!settingsSender(event.sender.id)) throw new Error('拒绝未授权的预览请求');
     overlay.preview();
   });
+  ipcMain.handle('settings:begin-positioning', (event) => {
+    if (!settingsSender(event.sender.id)) throw new Error('拒绝未授权的位置调整请求');
+    overlay.beginPositioning();
+  });
+  ipcMain.handle('settings:end-positioning', (event) => {
+    if (!settingsSender(event.sender.id)) throw new Error('拒绝未授权的位置调整请求');
+    overlay.endPositioning();
+  });
   ipcMain.handle('settings:set-shortcut', (event, shortcut: unknown) => {
     if (!settingsSender(event.sender.id) || typeof shortcut !== 'string' || !validShortcut(shortcut)) {
       throw new Error('快捷键必须包含修饰键和一个主键');
     }
     settings.update({ shortcut });
-    bridge.configure(shortcut);
+    bridge.configure(shortcut, settings.get().diagnosticLogging);
     return settingsWindow.state();
   });
   ipcMain.handle('settings:set-auto-start', (event, enabled: unknown) => {
@@ -136,6 +145,12 @@ function registerIpc(services: Services): void {
     if (!settingsSender(event.sender.id) || typeof enabled !== 'boolean') throw new Error('无效的悬浮球设置');
     settings.update({ overlayPersistent: enabled });
     overlay.reconcilePersistent();
+    return settingsWindow.state();
+  });
+  ipcMain.handle('settings:set-diagnostic-logging', (event, enabled: unknown) => {
+    if (!settingsSender(event.sender.id) || typeof enabled !== 'boolean') throw new Error('无效的日志设置');
+    settings.update({ diagnosticLogging: enabled });
+    bridge.setDiagnosticLogging(enabled);
     return settingsWindow.state();
   });
   ipcMain.handle('settings:open-repository', async (event) => {
@@ -160,6 +175,12 @@ function registerIpc(services: Services): void {
     if (typeof payload?.backend === 'string' && backends.senderIsActive(event, payload.backend)) {
       sessions.backendError(payload.message || '后端启动失败');
     }
+  });
+  ipcMain.on('backend-diagnostic', (event, payload: { backend?: string; stage?: string; [key: string]: unknown }) => {
+    if (typeof payload?.backend !== 'string' || !backends.senderIsActive(event, payload.backend)) return;
+    if (!settings.get().diagnosticLogging) return;
+    const { backend, stage, ...details } = payload;
+    console.info(`[MeloASR 网页诊断] backend=${backend} stage=${stage || 'unknown'} ${JSON.stringify(details)}`);
   });
 }
 

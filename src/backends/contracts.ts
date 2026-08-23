@@ -22,9 +22,15 @@ export interface BackendPageStatus {
 /** 仅在后端网页 preload 的渲染进程中调用。 */
 export interface BackendWebAdapter {
   readonly definition: BackendDefinition;
-  readonly stopDelayMs: number;
+  /** 网页停止录音后的最短缓冲、文本静默窗口和异常兜底。 */
+  readonly stopCompletion: Readonly<{
+    minimumWaitMs: number;
+    quietWindowMs: number;
+    timeoutMs: number;
+  }>;
   findEditor(document: Document): HTMLElement | null;
   findMicrophone(document: Document): HTMLElement | null;
+  isRecording(document: Document): boolean;
   serialize(editor: HTMLElement): string;
   detectPageStatus(document: Document): BackendPageStatus;
 }

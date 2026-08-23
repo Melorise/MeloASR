@@ -9,6 +9,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   shortcut: 'Control+Shift+space',
   autoStart: true,
   overlayPersistent: false,
+  diagnosticLogging: false,
   overlayPosition: null,
   loginNoticeShown: {}
 };
@@ -29,6 +30,7 @@ export class SettingsStore extends EventEmitter {
         overlayPosition: this.isPoint(parsed.overlayPosition) ? {
           x: Math.round(parsed.overlayPosition.x), y: Math.round(parsed.overlayPosition.y)
         } : null,
+        diagnosticLogging: parsed.diagnosticLogging === true,
         loginNoticeShown: parsed.loginNoticeShown ?? {}
       };
     } catch {

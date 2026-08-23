@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, screen, session, type IpcMainEvent } from 'electron';
+import { app, BrowserWindow, screen, session, type IpcMainEvent } from 'electron';
 import { EventEmitter } from 'node:events';
 import path from 'node:path';
 import { backendOwnsUrl, type BackendDefinition } from '../backends/contracts';
@@ -98,19 +98,6 @@ export class BackendManager extends EventEmitter {
   async showDebug(id = this.settings.get().backendId): Promise<void> {
     const page = await this.ensure(id);
     const record = this.records.get(id)!;
-    if (!this.settings.get().loginNoticeShown[id]) {
-      await dialog.showMessageBox({
-        type: 'info',
-        title: `${record.definition.label}登录`,
-        message: `请登录${record.definition.label}网页平台`,
-        detail: '登录完成后即可关闭此窗口。登录状态会保存在当前后端的独立会话中。',
-        buttons: ['继续'],
-        defaultId: 0
-      });
-      this.settings.update({
-        loginNoticeShown: { ...this.settings.get().loginNoticeShown, [id]: true }
-      });
-    }
     record.exposed = true;
     page.setSkipTaskbar(false);
     page.setBounds(this.debugBounds());

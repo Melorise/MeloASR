@@ -52,6 +52,7 @@ export class FcitxBridge extends EventEmitter {
   activeSession: string | null = null;
   private revision = 0;
   private shortcut = 'Control+Shift+space';
+  private diagnosticLogging = false;
 
   constructor(options: { socketPath?: string; env?: NodeJS.ProcessEnv } = {}) {
     super();
@@ -83,9 +84,14 @@ export class FcitxBridge extends EventEmitter {
     fs.chmodSync(this.socketPath, 0o600);
   }
 
-  configure(shortcut: string): boolean {
+  configure(shortcut: string, diagnosticLogging = this.diagnosticLogging): boolean {
     this.shortcut = shortcut;
-    return this.write({ type: 'configure', shortcut });
+    this.diagnosticLogging = diagnosticLogging;
+    return this.write({ type: 'configure', shortcut, diagnosticLogging });
+  }
+
+  setDiagnosticLogging(enabled: boolean): boolean {
+    return this.configure(this.shortcut, enabled);
   }
 
   requestInputStart(): boolean {

@@ -19,24 +19,14 @@
     <section>
       <h2>悬浮球</h2>
       <label class="switch"><input id="overlay-persistent" type="checkbox"><span>始终显示悬浮球</span></label>
-      <div class="row"><label for="display">屏幕</label><select id="display"></select></div>
-      <div class="screen" aria-label="九宫格位置预设">
-        <button data-preset="top-left" title="左上"></button><button data-preset="top-center" title="顶部居中"></button><button data-preset="top-right" title="右上"></button>
-        <button data-preset="middle-left" title="左侧居中"></button><button data-preset="middle-center" title="屏幕中央"></button><button data-preset="middle-right" title="右侧居中"></button>
-        <button data-preset="bottom-left" title="左下"></button><button data-preset="bottom-center" title="底部居中"></button><button data-preset="bottom-right" title="右下"></button>
-      </div>
-      <div class="coordinates">
-        <label for="position-x">X <input id="position-x" type="number" step="1"></label>
-        <label for="position-y">Y <input id="position-y" type="number" step="1"></label>
-      </div>
-      <div class="hint">方向键微调 1 像素，Shift + 方向键微调 10 像素</div>
-      <div class="buttons"><button id="apply-position" class="primary">应用坐标</button><button id="preview-overlay">预览</button></div>
+      <button id="open-position">调整悬浮球位置</button>
     </section>
 
     <section>
       <h2>常规</h2>
       <div class="row"><span>按住说话快捷键</span><button id="shortcut" class="shortcut"></button></div>
       <label class="switch"><input id="auto-start" type="checkbox"><span>开机自动启动</span></label>
+      <label class="switch"><input id="diagnostic-logging" type="checkbox"><span>记录诊断日志</span></label>
     </section>
 
     <section>
@@ -46,6 +36,37 @@
     </section>
     <div id="message" role="status"></div>
   </main>
+  <main id="position-view" style="display: none">
+    <div class="page-title"><button id="back-settings" title="返回设置">返回</button><div><h2>悬浮球位置</h2><span>位置调整</span></div></div>
+    <section class="position-panel">
+      <div class="row"><label for="display">屏幕</label><select id="display"></select></div>
+      <div id="position-screen" class="position-screen" aria-label="屏幕位置预览"><div id="position-ball" class="position-ball"></div></div>
+      <div class="position-controls">
+        <div class="coordinates"><label for="position-x">X <input id="position-x" type="number" step="1"></label><label for="position-y">Y <input id="position-y" type="number" step="1"></label></div>
+        <div class="direction-pad" aria-label="方向键">
+          <button data-direction="up" title="上移">上</button>
+          <button data-direction="left" title="左移">左</button><button data-direction="center" title="回到屏幕中央">●</button><button data-direction="right" title="右移">右</button>
+          <button data-direction="down" title="下移">下</button>
+        </div>
+      </div>
+      <div class="preset-grid" aria-label="九宫格位置预设">
+        <button data-preset="top-left" title="左上"></button><button data-preset="top-center" title="顶部居中"></button><button data-preset="top-right" title="右上"></button>
+        <button data-preset="middle-left" title="左侧居中"></button><button data-preset="middle-center" title="屏幕中央"></button><button data-preset="middle-right" title="右侧居中"></button>
+        <button data-preset="bottom-left" title="左下"></button><button data-preset="bottom-center" title="底部居中"></button><button data-preset="bottom-right" title="右下"></button>
+      </div>
+      <div class="hint">方向键 1 像素，Shift + 方向键 10 像素</div>
+    </section>
+  </main>
+  <dialog id="login-notice">
+    <div class="modal-content">
+      <h2 id="login-notice-title">登录后端</h2>
+      <p>请先登录对应的网页平台。登录完成后即可关闭调试窗口。</p>
+      <div class="modal-actions">
+        <button id="login-notice-cancel" type="button">取消</button>
+        <button id="login-notice-continue" type="button" class="primary">打开登录页面</button>
+      </div>
+    </div>
+  </dialog>
   <script src="settings.js"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 # Linux 分发打包
 
-MeloASR 0.1.0 的系统包由两部分组成：
+MeloASR 0.1.7 的系统包由两部分组成：
 
 - Electron 应用安装到 `/opt/meloasr`，命令入口为 `/usr/bin/meloasr`；
 - Fcitx5 常驻 addon 由目标发行版中的 CMake/Fcitx5 开发包编译，并安装到该环境报告的 addon 目录。
@@ -40,7 +40,7 @@ npm run build:linux:dir
 packaging/deb/build-deb.sh
 ```
 
-产物位于 `packaging/out/meloasr_0.1.0_<arch>.deb`。依赖名称按 Debian/Ubuntu 系列填写，但尚未在各发行版完成安装验证。
+产物位于 `packaging/out/meloasr_0.1.7_<arch>.deb`。依赖名称按 Debian/Ubuntu 系列填写，但尚未在各发行版完成安装验证。
 
 ## rpm
 
@@ -68,7 +68,7 @@ flake 使用 nixpkgs 的 Electron，Node 依赖由 `package-lock.json` 的 integ
 
 ## 发布前必须完成
 
-- 将所有 `example.invalid` 替换成正式仓库地址；
+- 发布前确认仓库地址和许可证元数据；
 - 明确项目许可证，并替换临时的 `LicenseRef-Proprietary`/Nix license；
 - 生成 Arch 源码归档真实 SHA-256；
 - 在干净的 Debian、RPM、Arch 和 Nix 构建环境逐一构建、安装、卸载；

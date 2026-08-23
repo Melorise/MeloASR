@@ -1,6 +1,10 @@
 #include "protocolsession.h"
+#include "preeditfinalizer.h"
+#include "keyeventclassifier.h"
 
 #include <cassert>
+#include <string>
+#include <vector>
 
 int main() {
     ProtocolSession session;
@@ -18,4 +22,19 @@ int main() {
     session.start("round-2");
     assert(!session.accept("round-1", 100));
     assert(session.accept("round-2", 1));
+    std::vector<std::string> finalizationEvents;
+    finalizePreedit(
+        "最终文本",
+        [&finalizationEvents]() { finalizationEvents.emplace_back("clear"); },
+        [&finalizationEvents](const std::string &text) {
+            finalizationEvents.emplace_back("commit:" + text);
+        });
+    assert((finalizationEvents == std::vector<std::string>{"clear", "commit:最终文本"}));
+
+    assert(classifyVoiceKeyEvent(false, true, false, true, false, false, false) ==
+           VoiceKeyAction::ConsumeHeldTrigger);
+    assert(classifyVoiceKeyEvent(true, true, false, true, false, false, false) ==
+           VoiceKeyAction::Stop);
+    assert(classifyVoiceKeyEvent(false, true, false, false, false, false, true) ==
+           VoiceKeyAction::Cancel);
 }
