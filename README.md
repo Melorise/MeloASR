@@ -85,6 +85,10 @@ npm run package:rpm
 
 Arch/pacman 配置位于 `packaging/arch/`，Nix 入口为 `flake.nix`。详细依赖、验证状态和发布前替换项见 `packaging/README.md`。
 
+## Nix Cachix缓存源
+缓存源：https://meloasr.cachix.org   
+公钥：meloasr.cachix.org-1:oMmpfj7D1pQTtJx6cHYupvPDJPFlkBB0JIpJYvkR5hc=
+
 ## 验证
 
 ```bash
