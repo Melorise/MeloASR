@@ -32,10 +32,10 @@ export class SettingsWindow {
 
   private async createWindow(): Promise<BrowserWindow> {
     const window = new BrowserWindow({
-      width: 720,
-      height: 820,
-      minWidth: 640,
-      minHeight: 680,
+      width: 600,
+      height: 650,
+      minWidth: 560,
+      minHeight: 560,
       show: false,
       title: 'MeloASR 设置',
       autoHideMenuBar: true,
