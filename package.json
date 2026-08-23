@@ -1,7 +1,7 @@
 {
   "name": "meloasr",
   "productName": "MeloASR",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "private": true,
   "author": "MeloASR contributors",
   "description": "基于网页语音识别后端和 Fcitx5 的 Linux 实时语音输入工具",

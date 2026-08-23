@@ -36,6 +36,9 @@ tar -C %{buildroot} -xzf %{SOURCE0}
 /etc/xdg/autostart/meloasr.desktop
 
 %changelog
+* Sun Aug 23 2026 MeloASR contributors - 0.1.11-1
+- Release only the selected speech backend renderer.
+
 * Sun Aug 23 2026 MeloASR contributors - 0.1.10-1
 - Restore the Nix npm configuration hook before building the application.
 

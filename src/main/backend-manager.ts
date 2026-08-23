@@ -12,6 +12,7 @@ interface BackendRecord {
   page: BrowserWindow;
   windows: Set<BrowserWindow>;
   exposed: boolean;
+  disposed: boolean;
   status: BackendRuntimeStatus;
 }
 
@@ -72,6 +73,7 @@ export class BackendManager extends EventEmitter {
       page: root,
       windows: new Set([root]),
       exposed: false,
+      disposed: false,
       status: loadingStatus(definition)
     };
     this.records.set(id, record);
@@ -89,7 +91,12 @@ export class BackendManager extends EventEmitter {
 
   async select(id: string): Promise<void> {
     requireBackend(id);
-    this.hideRecord(this.records.get(this.settings.get().backendId));
+    const previousId = this.settings.get().backendId;
+    if (previousId === id) {
+      await this.ensure(id);
+      return;
+    }
+    this.disposeRecord(previousId);
     this.settings.update({ backendId: id });
     await this.ensure(id);
     this.emit('active-changed', id);
@@ -200,7 +207,7 @@ export class BackendManager extends EventEmitter {
 
   private registerWindow(window: BrowserWindow, record: BackendRecord): void {
     window.on('close', (event) => {
-      if ((app as typeof app & { isQuitting?: boolean }).isQuitting) return;
+      if (record.disposed || (app as typeof app & { isQuitting?: boolean }).isQuitting) return;
       event.preventDefault();
       this.hideRecord(record);
     });
@@ -209,6 +216,10 @@ export class BackendManager extends EventEmitter {
       overrideBrowserWindowOptions: { show: record.exposed, skipTaskbar: !record.exposed, focusable: true }
     }));
     window.webContents.on('did-create-window', (child) => {
+      if (record.disposed) {
+        child.destroy();
+        return;
+      }
       record.windows.add(child);
       child.on('closed', () => record.windows.delete(child));
       this.registerWindow(child, record);
@@ -239,6 +250,17 @@ export class BackendManager extends EventEmitter {
     if (!record) return;
     record.exposed = false;
     for (const window of record.windows) this.parkWindow(window);
+  }
+
+  private disposeRecord(id: string): void {
+    const record = this.records.get(id);
+    if (!record) return;
+    record.disposed = true;
+    this.records.delete(id);
+    for (const window of [...record.windows]) {
+      if (!window.isDestroyed()) window.destroy();
+    }
+    record.windows.clear();
   }
 
   private parkWindow(window: BrowserWindow): void {
