@@ -83,7 +83,7 @@ stdenv.mkDerivation (finalAttrs: {
   meta = {
     description = "Web-backed voice input for Fcitx5";
     homepage = "https://github.com/Melorise/MeloASR";
-    license = lib.licenses.unfreeRedistributable;
+    license = lib.licenses.mpl20;
     mainProgram = "meloasr";
     platforms = lib.platforms.linux;
   };
