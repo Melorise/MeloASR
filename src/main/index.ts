@@ -39,9 +39,7 @@ async function bootstrap(): Promise<void> {
   const repositoryUrl = process.env.MELOASR_REPOSITORY_URL?.trim() ||
     'https://github.com/Melorise/MeloASR';
   const settingsWindow = new SettingsWindow(settings, backends, overlay, sessions, repositoryUrl);
-  const settingsWindowReady = settingsWindow.create();
   registerIpc({ settings, autoStart, bridge, backends, overlay, sessions, settingsWindow });
-  await settingsWindowReady;
   const tray = new TrayController(
     backends,
     settingsWindow,
@@ -68,7 +66,7 @@ async function bootstrap(): Promise<void> {
   await backends.ensure(settings.get().backendId);
   tray.refresh();
 
-  app.on('second-instance', () => settingsWindow.show());
+  app.on('second-instance', () => void settingsWindow.show());
   app.on('before-quit', () => { (app as typeof app & { isQuitting?: boolean }).isQuitting = true; });
   app.on('will-quit', () => {
     tray.destroy();

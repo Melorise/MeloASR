@@ -9,6 +9,7 @@ import type { SettingsStore } from './settings-store';
 
 export class SettingsWindow {
   window: BrowserWindow | null = null;
+  private creating: Promise<BrowserWindow> | null = null;
 
   constructor(
     private readonly settings: SettingsStore,
@@ -18,8 +19,19 @@ export class SettingsWindow {
     private readonly repositoryUrl: string | null
   ) {}
 
-  async create(): Promise<void> {
-    this.window = new BrowserWindow({
+  private async ensureWindow(): Promise<BrowserWindow> {
+    if (this.window && !this.window.isDestroyed()) return this.window;
+    if (this.creating) return this.creating;
+    this.creating = this.createWindow();
+    try {
+      return await this.creating;
+    } finally {
+      this.creating = null;
+    }
+  }
+
+  private async createWindow(): Promise<BrowserWindow> {
+    const window = new BrowserWindow({
       width: 720,
       height: 820,
       minWidth: 640,
@@ -35,18 +47,19 @@ export class SettingsWindow {
         sandbox: true
       }
     });
-    this.window.on('close', (event) => {
-      if ((app as typeof app & { isQuitting?: boolean }).isQuitting) return;
-      event.preventDefault();
-      this.window?.hide();
+    this.window = window;
+    window.on('closed', () => {
+      this.overlay.endPositioning();
+      if (this.window === window) this.window = null;
     });
-    this.window.on('hide', () => this.overlay.endPositioning());
-    await this.window.loadFile(path.join(__dirname, '..', 'renderer', 'settings.html'));
+    await window.loadFile(path.join(__dirname, '..', 'renderer', 'settings.html'));
+    return window;
   }
 
-  show(): void {
-    this.window?.show();
-    this.window?.focus();
+  async show(): Promise<void> {
+    const window = await this.ensureWindow();
+    window.show();
+    window.focus();
     this.publish();
   }
 
@@ -60,7 +73,7 @@ export class SettingsWindow {
     const definition = this.backends.activeDefinition();
     const decision = resolveDebugLoginAction(Boolean(current.loginNoticeShown[definition.id]), confirmed);
     if (decision.action === 'prompt') {
-      this.show();
+      await this.show();
       this.window?.webContents.send('settings:login-notice', { backendLabel: definition.label });
       return;
     }

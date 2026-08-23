@@ -31,7 +31,7 @@ export class TrayController {
   create(): void {
     this.tray = new Tray(trayImage('loading'));
     this.tray.setToolTip('MeloASR · 正在加载');
-    this.tray.on('click', () => this.settingsWindow.show());
+    this.tray.on('click', () => void this.settingsWindow.show());
     this.refresh();
   }
 
@@ -44,7 +44,7 @@ export class TrayController {
     this.tray.setImage(trayImage(state));
     this.tray.setToolTip(`MeloASR · ${status.detail}`);
     this.tray.setContextMenu(Menu.buildFromTemplate([
-      { label: '设置', click: () => this.settingsWindow.show() },
+      { label: '设置', click: () => void this.settingsWindow.show() },
       { label: '打开登录/调试页面', click: () => void this.settingsWindow.openDebug() },
       { type: 'separator' },
       { label: '重启', click: this.onRestart },

@@ -1,6 +1,6 @@
 # Arch Linux 构建
 
-发布时把项目源码归档为 `meloasr-0.1.12.tar.gz`，与 `PKGBUILD` 放在同一目录，随后运行：
+发布时把项目源码归档为 `meloasr-0.1.13.tar.gz`，与 `PKGBUILD` 放在同一目录，随后运行：
 
 ```bash
 makepkg --syncdeps --cleanbuild

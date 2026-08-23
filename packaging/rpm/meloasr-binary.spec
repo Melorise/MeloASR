@@ -36,6 +36,9 @@ tar -C %{buildroot} -xzf %{SOURCE0}
 /etc/xdg/autostart/meloasr.desktop
 
 %changelog
+* Mon Aug 24 2026 MeloASR contributors - 0.1.13-1
+- Create the settings renderer only when it is opened and destroy it on close.
+
 * Sun Aug 23 2026 MeloASR contributors - 0.1.12-1
 - Disable Electron GPU acceleration for background web renderers.
 
