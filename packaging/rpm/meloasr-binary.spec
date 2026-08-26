@@ -36,6 +36,9 @@ tar -C %{buildroot} -xzf %{SOURCE0}
 /etc/xdg/autostart/meloasr.desktop
 
 %changelog
+* Wed Aug 26 2026 MeloASR contributors - 0.1.14-1
+- Cache the active web editor for the duration of each speech session.
+
 * Mon Aug 24 2026 MeloASR contributors - 0.1.13-1
 - Create the settings renderer only when it is opened and destroy it on close.
 

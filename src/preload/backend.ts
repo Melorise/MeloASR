@@ -11,6 +11,7 @@ const adapter = getBackendWebAdapter(backendId);
 
 let editorObserver: MutationObserver | undefined;
 let pageObserver: MutationObserver | undefined;
+let activeEditor: HTMLElement | null = null;
 let active = false;
 let stopping = false;
 let lastSpeechText = '';
@@ -68,12 +69,11 @@ function schedulePageStatus(): void {
 function emitCurrentEditorText(): void {
   emitScheduled = false;
   if (!active || !adapter) return;
-  const editor = adapter.findEditor(document);
-  if (!editor) {
+  if (!activeEditor?.isConnected) {
     fail(`${adapter.definition.label}输入框在录音期间消失，本轮已停止`);
     return;
   }
-  const text = adapter.serialize(editor);
+  const text = adapter.serialize(activeEditor);
   if (text === lastSpeechText) return;
   lastSpeechText = text;
   transcriptRevision += 1;
@@ -119,6 +119,7 @@ function resetSession(): void {
   stopping = false;
   lastTranscriptAt = 0;
   editorObserver?.disconnect();
+  activeEditor = null;
   diagnose('session-reset');
 }
 
@@ -147,28 +148,30 @@ function startSpeech(): void {
     return;
   }
 
+  const initialText = adapter.serialize(editor);
   diagnose('start-targets', {
-    editorLength: adapter.serialize(editor).length,
+    editorLength: initialText.length,
     microphone: controlSnapshot(microphone)
   });
 
   clearTimeout(stopTimer);
   placeCaretAtEnd(editor);
-  lastSpeechText = adapter.serialize(editor);
+  lastSpeechText = initialText;
   transcriptRevision = 0;
   lastTranscriptAt = Date.now();
   active = true;
   stopping = false;
+  activeEditor = editor;
   observeEditor(editor);
   microphone.click();
   diagnose('start-clicked', { microphone: controlSnapshot(adapter.findMicrophone(document)) });
   window.setTimeout(() => diagnose('start-after-250ms', {
     microphone: controlSnapshot(adapter.findMicrophone(document)),
-    editorLength: adapter.findEditor(document) ? adapter.serialize(adapter.findEditor(document)!).length : null
+    editorLength: active && editor.isConnected ? adapter.serialize(editor).length : null
   }), 250);
   window.setTimeout(() => diagnose('start-after-1000ms', {
     microphone: controlSnapshot(adapter.findMicrophone(document)),
-    editorLength: adapter.findEditor(document) ? adapter.serialize(adapter.findEditor(document)!).length : null
+    editorLength: active && editor.isConnected ? adapter.serialize(editor).length : null
   }), 1_000);
 }
 
