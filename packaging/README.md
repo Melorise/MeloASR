@@ -1,6 +1,6 @@
 # Linux 分发打包
 
-MeloASR 0.1.15 的系统包由两部分组成：
+MeloASR 0.1.16 的系统包由两部分组成：
 
 - Electron 应用安装到 `/opt/meloasr`，命令入口为 `/usr/bin/meloasr`；
 - Fcitx5 常驻 addon 由目标发行版中的 CMake/Fcitx5 开发包编译，并安装到该环境报告的 addon 目录。
@@ -12,7 +12,7 @@ MeloASR 0.1.15 的系统包由两部分组成：
 deb、rpm 和 Arch 配置期望项目提供：
 
 ```bash
-npm run build:linux:dir
+pnpm run build:linux:dir
 ```
 
 该命令应在 `release/linux-unpacked/` 生成可直接运行的 Electron 目录，并且主程序名必须是 `meloasr`。仓库提供的 `electron-builder.yml` 只生成这一中间目录；deb/rpm/Arch 的系统文件仍由各自脚本管理，避免用安装钩子复制未被包管理器追踪的 Fcitx5 文件。
@@ -21,7 +21,7 @@ npm run build:linux:dir
 
 ```json
 {
-  "build:linux:dir": "npm run build && electron-builder --config packaging/electron-builder.yml --linux dir"
+  "build:linux:dir": "pnpm run build && electron-builder --config packaging/electron-builder.yml --linux dir"
 }
 ```
 
@@ -36,18 +36,18 @@ packaging/scripts/stage-linux.sh release/linux-unpacked packaging/out/root
 在 Debian/Ubuntu 对应目标环境中安装 Node.js 构建依赖、CMake、C++ 编译器、Fcitx5 开发包与 nlohmann-json 开发包，然后执行：
 
 ```bash
-npm run build:linux:dir
+pnpm run build:linux:dir
 packaging/deb/build-deb.sh
 ```
 
-产物位于 `packaging/out/meloasr_0.1.15_<arch>.deb`。依赖名称按 Debian/Ubuntu 系列填写，但尚未在各发行版完成安装验证。
+产物位于 `packaging/out/meloasr_0.1.16_<arch>.deb`。依赖名称按 Debian/Ubuntu 系列填写，但尚未在各发行版完成安装验证。
 
 ## rpm
 
 在目标 RPM 发行版中准备相同的编译依赖和 `rpmbuild`，然后执行：
 
 ```bash
-npm run build:linux:dir
+pnpm run build:linux:dir
 packaging/rpm/build-rpm.sh
 ```
 
@@ -64,7 +64,7 @@ nix build
 nix run
 ```
 
-flake 使用 nixpkgs 的 Electron，Node 依赖由 `package-lock.json` 的 integrity 数据导入，不需要手写固定输出 hash。仓库首次确定发布地址后，需要锁定并提交 `flake.lock`。当前环境没有 Nix，尚未实际执行上述命令。
+flake 使用 nixpkgs 的 Electron，Node 依赖由 `pnpm-lock.yaml` 和固定输出的 pnpm store 导入。仓库首次确定发布地址后，需要锁定并提交 `flake.lock`。
 
 ## 发布前必须完成
 

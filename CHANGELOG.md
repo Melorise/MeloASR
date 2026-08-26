@@ -2,6 +2,13 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 的格式。
 
+## [0.1.16] - 2026-08-26
+
+### 修复
+
+- 项目依赖管理、构建脚本、Arch 打包和 Release 工作流统一迁移到 pnpm，避免 npm 将第三方镜像地址识别为禁用的 remote 包。
+- 使用不包含 registry 下载地址的 `pnpm-lock.yaml` 替代 `package-lock.json`，使锁文件不再固化生成环境的 npm 镜像。
+
 ## [0.1.15] - 2026-08-26
 
 ### 修复

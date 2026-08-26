@@ -4,7 +4,7 @@
 
 ```bash
 curl --fail --location --remote-name \
-  https://github.com/Melorise/MeloASR/releases/download/v0.1.15/PKGBUILD
+  https://github.com/Melorise/MeloASR/releases/download/v0.1.16/PKGBUILD
 makepkg --syncdeps --cleanbuild
 ```
 

@@ -1,7 +1,9 @@
 { lib
 , stdenv
-, importNpmLock
+, fetchPnpmDeps
 , nodejs
+, pnpm_11
+, pnpmConfigHook
 , electron
 , cmake
 , pkg-config
@@ -10,19 +12,26 @@
 , nlohmann_json
 }:
 
+let
+  pnpm = pnpm_11;
+in
 stdenv.mkDerivation (finalAttrs: {
   pname = "meloasr";
   version = (builtins.fromJSON (builtins.readFile ../../package.json)).version;
 
   src = ../..;
 
-  npmDeps = importNpmLock {
-    npmRoot = finalAttrs.src;
+  pnpmDeps = fetchPnpmDeps {
+    inherit (finalAttrs) pname version src;
+    inherit pnpm;
+    fetcherVersion = 4;
+    hash = "sha256-KoxRIhZVhshxTpl5rzzfUnaSAuGo3gCvFD2FsltN1gc=";
   };
 
   nativeBuildInputs = [
     nodejs
-    importNpmLock.npmConfigHook
+    pnpm
+    pnpmConfigHook
     cmake
     pkg-config
     makeWrapper
@@ -30,7 +39,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   buildInputs = [ fcitx5 nlohmann_json ];
 
-  # 保留 npmConfigHook 的 postConfigure 生命周期，但不对项目根目录运行默认 CMake 配置。
+  # 保留 pnpmConfigHook 的 postConfigure 生命周期，但不对项目根目录运行默认 CMake 配置。
   configurePhase = ''
     runHook preConfigure
     runHook postConfigure
@@ -38,7 +47,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   buildPhase = ''
     runHook preBuild
-    npm run build
+    pnpm run build
     cmake -S linux/fcitx5 -B build/fcitx5 \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX="$out" \
@@ -49,7 +58,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   checkPhase = ''
     runHook preCheck
-    npm test
+    pnpm test
     ctest --test-dir build/fcitx5 --output-on-failure
     runHook postCheck
   '';
@@ -65,11 +74,6 @@ stdenv.mkDerivation (finalAttrs: {
 
     cp package.json "$appDir/"
     cp -r dist "$appDir/"
-    if [ -d node_modules ]; then
-      npm prune --omit=dev --ignore-scripts
-      cp -r node_modules "$appDir/"
-    fi
-
     install -Dm644 packaging/assets/meloasr.desktop \
       "$out/share/applications/meloasr.desktop"
     install -Dm644 packaging/assets/meloasr-autostart.desktop \

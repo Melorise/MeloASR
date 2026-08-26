@@ -1,21 +1,22 @@
 {
   "name": "meloasr",
   "productName": "MeloASR",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "private": true,
+  "packageManager": "pnpm@11.21.0",
   "author": "MeloASR contributors",
   "description": "基于网页语音识别后端和 Fcitx5 的 Linux 实时语音输入工具",
   "main": "dist/main/index.js",
   "scripts": {
     "clean": "node scripts/clean.mjs",
-    "build": "npm run clean && tsc && esbuild src/preload/backend.ts --bundle --platform=node --format=cjs --external:electron --outfile=dist/preload/backend.js && node scripts/copy-static.mjs",
+    "build": "pnpm run clean && tsc && esbuild src/preload/backend.ts --bundle --platform=node --format=cjs --external:electron --outfile=dist/preload/backend.js && node scripts/copy-static.mjs",
     "typecheck": "tsc --noEmit",
-    "start": "npm run build && electron --ozone-platform=x11 .",
+    "start": "pnpm run build && electron --ozone-platform=x11 .",
     "build:fcitx5": "cmake -S linux/fcitx5 -B linux/fcitx5/build -DCMAKE_BUILD_TYPE=Release && cmake --build linux/fcitx5/build --parallel",
-    "build:linux:dir": "npm run build && electron-builder --config packaging/electron-builder.yml --linux dir",
-    "package:deb": "npm run build:linux:dir && packaging/deb/build-deb.sh",
-    "package:rpm": "npm run build:linux:dir && packaging/rpm/build-rpm.sh",
-    "test": "npm run typecheck && tsc -p tsconfig.test.json && node --test dist-test/test/*.test.js"
+    "build:linux:dir": "pnpm run build && electron-builder --config packaging/electron-builder.yml --linux dir",
+    "package:deb": "pnpm run build:linux:dir && packaging/deb/build-deb.sh",
+    "package:rpm": "pnpm run build:linux:dir && packaging/rpm/build-rpm.sh",
+    "test": "pnpm run typecheck && tsc -p tsconfig.test.json && node --test dist-test/test/*.test.js"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

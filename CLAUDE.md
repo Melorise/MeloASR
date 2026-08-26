@@ -2,7 +2,7 @@
 
 ## 项目范围
 
-MeloASR 是仅面向 Linux 的 Fcitx5 桌面语音输入工具。项目名为 `MeloASR`，分发包名为 `meloasr`，当前版本为 `0.1.15`。
+MeloASR 是仅面向 Linux 的 Fcitx5 桌面语音输入工具。项目名为 `MeloASR`，分发包名为 `meloasr`，当前版本为 `0.1.16`。
 
 不得恢复 Windows、PowerShell 或 Tauri 输出路径。发行版差异只能存在于依赖说明和打包配置，不能进入语音输入核心逻辑。
 
@@ -75,18 +75,18 @@ MeloASR 是仅面向 Linux 的 Fcitx5 桌面语音输入工具。项目名为 `M
 核心命令：
 
 ```bash
-npm test
-npm run build
-npm run build:fcitx5
+pnpm test
+pnpm run build
+pnpm run build:fcitx5
 ctest --test-dir linux/fcitx5/build --output-on-failure
 ```
 
 验证必须与实际改动范围对应，禁止为了展示“完整”而机械扩大测试范围：
 
-- TypeScript、preload 或 renderer 改动运行 `npm test` 和 `npm run build`；
-- 只有修改 Fcitx5 C++、CMake 构建逻辑或本地协议实现时，才运行 `npm run build:fcitx5` 和 `ctest`；仅同步发行版本号不要求重测未改动的 Fcitx5 逻辑；
+- TypeScript、preload 或 renderer 改动运行 `pnpm test` 和 `pnpm run build`；
+- 只有修改 Fcitx5 C++、CMake 构建逻辑或本地协议实现时，才运行 `pnpm run build:fcitx5` 和 `ctest`；仅同步发行版本号不要求重测未改动的 Fcitx5 逻辑；
 - FHS 发行版是首要维护目标，FHS 构建或打包问题必须在对应 Debian、Ubuntu、RPM 或 Arch 环境处理，不得默认用 Nix 环境替代；Nix 只用于验证 Nix 打包路径；
-- 项目依赖未安装时，按 `package-lock.json` 运行 `npm ci`，不能以 `tsc` 或其它工具缺失为由跳过正常验证；
+- 项目依赖未安装时，按 `pnpm-lock.yaml` 运行 `pnpm install --frozen-lockfile`，不能以 `tsc` 或其它工具缺失为由跳过正常验证；
 - 不得声称添加了未实际添加的测试，也不得把无关环境中的成功构建计入目标平台验证结果。
 
 最低动态回归：连续三轮；文本缩短、改词和补标点；finish 仅一次；cancel/reset/disconnect；ready gate；登录探测；后端切换；多屏位置和键盘微调；托盘退出/重启；自启动；GTK、Qt、Chromium 和终端；X11 与 Wayland。
@@ -97,7 +97,7 @@ ctest --test-dir linux/fcitx5/build --output-on-failure
 
 deb、rpm、Arch/pacman 和 Nix 都必须包含 Electron 应用、desktop/icon/autostart 文件和 Fcitx5 addon。桌面 ID、包名、Socket、addon 名称和版本保持一致。仓库地址和许可证确定前，不得把占位值作为正式发行元数据。
 
-版本发布时同步 `package.json`、`package-lock.json`、CHANGELOG、AppStream、Fcitx5 addon 版本和各发行版打包元数据，并运行 `scripts/release-metadata.mjs <version>` 校验发布说明。
+版本发布时同步 `package.json`、`pnpm-lock.yaml`、CHANGELOG、AppStream、Fcitx5 addon 版本和各发行版打包元数据，并运行 `scripts/release-metadata.mjs <version>` 校验发布说明。
 
 `v*` Git 标签由远程 Release 工作流产生。除非用户明确要求，本地禁止创建、移动或删除发布标签，也禁止推送提交或标签。“更新版本”或“更新发版”本身不等于授权本地打标签。
 

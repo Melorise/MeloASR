@@ -52,12 +52,12 @@ api调用——调用各大ai厂商的语音转文字api。显然，该方案最
 依赖：Node.js 22+、CMake 3.16+、支持 C++20 的编译器、Fcitx5 Core/Utils 开发包、nlohmann-json。
 
 ```bash
-npm install
-npm test
-npm run build:fcitx5
+pnpm install --frozen-lockfile
+pnpm test
+pnpm run build:fcitx5
 ./linux/fcitx5/install-user.sh
 fcitx5 -r
-npm start
+pnpm start
 ```
 
 应用默认由托盘常驻，设置页与后端调试窗口默认隐藏。首次打开某个后端的调试窗口时，应用会提示登录；登录状态保存在该后端自己的 persistent partition 中。
@@ -78,9 +78,9 @@ npm start
 ## Linux 分发
 
 ```bash
-npm run build:linux:dir
-npm run package:deb
-npm run package:rpm
+pnpm run build:linux:dir
+pnpm run package:deb
+pnpm run package:rpm
 ```
 
 Arch/pacman 配置位于 `packaging/arch/`，Nix 入口为 `flake.nix`。详细依赖、验证状态和发布前替换项见 `packaging/README.md`。
@@ -92,8 +92,8 @@ Arch/pacman 配置位于 `packaging/arch/`，Nix 入口为 `flake.nix`。详细�
 ## 验证
 
 ```bash
-npm test
-npm run build
-npm run build:fcitx5
+pnpm test
+pnpm run build
+pnpm run build:fcitx5
 ctest --test-dir linux/fcitx5/build --output-on-failure
 ```

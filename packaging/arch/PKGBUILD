@@ -1,12 +1,12 @@
 pkgname=meloasr
-pkgver=0.1.15
+pkgver=0.1.16
 pkgrel=1
 pkgdesc='Web-backed voice input for Fcitx5'
 arch=('x86_64')
 url='https://github.com/Melorise/MeloASR'
 license=('MPL2')
 depends=('fcitx5' 'gtk3' 'nss' 'libxss' 'mesa' 'alsa-lib')
-makedepends=('nodejs' 'npm' 'cmake' 'gcc' 'nlohmann-json')
+makedepends=('nodejs' 'pnpm' 'cmake' 'gcc' 'nlohmann-json')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('SKIP')
 
@@ -14,8 +14,8 @@ _source_dir="MeloASR-${pkgver}"
 
 build() {
   cd "${srcdir}/${_source_dir}"
-  npm ci
-  npm run build:linux:dir
+  pnpm install --frozen-lockfile
+  pnpm run build:linux:dir
   cmake -S linux/fcitx5 -B build/fcitx5 \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr
@@ -24,7 +24,7 @@ build() {
 
 check() {
   cd "${srcdir}/${_source_dir}"
-  npm test
+  pnpm test
   ctest --test-dir build/fcitx5 --output-on-failure
 }
 

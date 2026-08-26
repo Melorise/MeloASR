@@ -87,10 +87,15 @@ jobs:
         with:
           ref: ${{ needs.update-flake-lock.outputs.commit_sha }}
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.21.0
+          run_install: false
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          cache: pnpm
 
       - name: 安装系统构建依赖
         run: |
@@ -105,9 +110,9 @@ jobs:
           MELOASR_DEB_ARCH: ${{ matrix.deb_arch }}
           MELOASR_ELECTRON_APP_DIR: ${{ matrix.electron_app_dir }}
         run: |
-          npm ci
-          npm run package:deb
-          npm run package:rpm
+          pnpm install --frozen-lockfile
+          pnpm run package:deb
+          pnpm run package:rpm
           mkdir -p release-artifacts
           cp packaging/out/*.deb packaging/out/*.rpm release-artifacts/
 
