@@ -2,6 +2,14 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 的格式。
 
+## [0.1.15] - 2026-08-26
+
+### 修复
+
+- Arch PKGBUILD 改为直接下载 GitHub Release 标签对应的源码归档，不再要求发布者或用户手动放置源码包。
+- 修正 GitHub 标签归档的解压目录处理，使 `makepkg` 可以直接完成构建、测试和打包。
+- 远程 Release 现在附带当前版本的 `PKGBUILD`，Arch 用户无需再从源码树中单独提取打包文件。
+
 ## [0.1.14] - 2026-08-26
 
 ### 性能

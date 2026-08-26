@@ -1,9 +1,11 @@
 # Arch Linux 构建
 
-发布时把项目源码归档为 `meloasr-0.1.14.tar.gz`，与 `PKGBUILD` 放在同一目录，随后运行：
+远程 Release 会附带当前版本的 `PKGBUILD`。下载后直接运行：
 
 ```bash
+curl --fail --location --remote-name \
+  https://github.com/Melorise/MeloASR/releases/download/v0.1.15/PKGBUILD
 makepkg --syncdeps --cleanbuild
 ```
 
-正式发布必须把 `source` 改为仓库的不可变 release URL，并以 `updpkgsums` 写入真实 SHA-256；当前源码包仍保留 `SKIP`，不能直接作为正式 Arch 发布源。
+`PKGBUILD` 会根据 `pkgver` 直接下载 GitHub Release 标签对应的源码归档，无需手动下载、重命名或放置源码包。源码地址固定为 `https://github.com/Melorise/MeloASR/archive/refs/tags/v${pkgver}.tar.gz`，因此同一份 `PKGBUILD` 可以重复构建该版本。

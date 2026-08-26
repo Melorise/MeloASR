@@ -36,6 +36,9 @@ tar -C %{buildroot} -xzf %{SOURCE0}
 /etc/xdg/autostart/meloasr.desktop
 
 %changelog
+* Wed Aug 26 2026 MeloASR contributors - 0.1.15-1
+- Download the Arch package source directly from the matching GitHub release tag.
+
 * Wed Aug 26 2026 MeloASR contributors - 0.1.14-1
 - Cache the active web editor for the duration of each speech session.
 

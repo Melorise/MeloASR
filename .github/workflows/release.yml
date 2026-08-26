@@ -204,8 +204,10 @@ jobs:
           path: release
           merge-multiple: true
 
-      - name: 附带构建使用的 flake.lock
-        run: cp flake.lock release/flake.lock
+      - name: 附带发行元数据
+        run: |
+          cp flake.lock release/flake.lock
+          cp packaging/arch/PKGBUILD release/PKGBUILD
 
       - uses: softprops/action-gh-release@v2
         with:

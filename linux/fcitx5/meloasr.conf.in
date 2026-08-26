@@ -6,7 +6,7 @@ Comment[zh_CN]=将 MeloASR 网页后端连接到当前输入上下文
 Type=SharedLibrary
 Library=@MELOASR_LIBRARY_PATH@
 Category=Module
-Version=0.1.14
+Version=0.1.15
 OnDemand=False
 Configurable=False
 

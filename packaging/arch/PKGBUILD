@@ -1,5 +1,5 @@
 pkgname=meloasr
-pkgver=0.1.14
+pkgver=0.1.15
 pkgrel=1
 pkgdesc='Web-backed voice input for Fcitx5'
 arch=('x86_64')
@@ -7,11 +7,13 @@ url='https://github.com/Melorise/MeloASR'
 license=('MPL2')
 depends=('fcitx5' 'gtk3' 'nss' 'libxss' 'mesa' 'alsa-lib')
 makedepends=('nodejs' 'npm' 'cmake' 'gcc' 'nlohmann-json')
-source=("${pkgname}-${pkgver}.tar.gz")
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('SKIP')
 
+_source_dir="MeloASR-${pkgver}"
+
 build() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
+  cd "${srcdir}/${_source_dir}"
   npm ci
   npm run build:linux:dir
   cmake -S linux/fcitx5 -B build/fcitx5 \
@@ -21,13 +23,13 @@ build() {
 }
 
 check() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
+  cd "${srcdir}/${_source_dir}"
   npm test
   ctest --test-dir build/fcitx5 --output-on-failure
 }
 
 package() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
+  cd "${srcdir}/${_source_dir}"
 
   install -d "${pkgdir}/opt/meloasr"
   cp -a release/linux-unpacked/. "${pkgdir}/opt/meloasr/"
