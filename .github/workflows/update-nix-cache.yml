@@ -1,0 +1,94 @@
+name: Update Nix Cache
+
+on:
+  schedule:
+    - cron: "17 17 * * 2"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-nix-cache-master
+  cancel-in-progress: false
+
+jobs:
+  update-flake-lock:
+    name: 更新 Nix 锁文件
+    runs-on: ubuntu-24.04
+    outputs:
+      commit_sha: ${{ steps.commit.outputs.commit_sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - uses: DeterminateSystems/nix-installer-action@v20
+
+      - name: 更新 flake.lock
+        run: nix flake update
+
+      - id: commit
+        name: 提交锁文件更新
+        env:
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          if [[ -n "$(git status --porcelain -- flake.lock)" ]]; then
+            git add flake.lock
+            git commit -m "build: 更新 flake.lock"
+            git push origin HEAD:master
+          fi
+          echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  build-nix:
+    name: Nix ${{ matrix.system }}
+    needs: update-flake-lock
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - system: x86_64-linux
+            runner: ubuntu-24.04
+          - system: aarch64-linux
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.update-flake-lock.outputs.commit_sha }}
+
+      - uses: DeterminateSystems/nix-installer-action@v20
+
+      - uses: cachix/cachix-action@v15
+        with:
+          name: ${{ vars.CACHIX_CACHE_NAME }}
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: 校验并配置 Cachix
+        env:
+          CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          CACHIX_CACHE_NAME: ${{ vars.CACHIX_CACHE_NAME }}
+          CACHIX_PUBLIC_KEY: ${{ vars.CACHIX_PUBLIC_KEY }}
+        run: |
+          test -n "$CACHIX_AUTH_TOKEN"
+          test -n "$CACHIX_CACHE_NAME"
+          test -n "$CACHIX_PUBLIC_KEY"
+          mkdir -p "$HOME/.config/nix"
+          {
+            echo "extra-substituters = https://$CACHIX_CACHE_NAME.cachix.org"
+            echo "extra-trusted-public-keys = $CACHIX_PUBLIC_KEY"
+          } >> "$HOME/.config/nix/nix.conf"
+
+      - name: 构建、上传并更新最新 pin
+        env:
+          CACHIX_CACHE_NAME: ${{ vars.CACHIX_CACHE_NAME }}
+        run: |
+          nix build ".#packages.${{ matrix.system }}.meloasr"
+          store_path="$(readlink -f result)"
+          cachix push "$CACHIX_CACHE_NAME" "$store_path"
+          cachix pin --keep-revisions 1 "$CACHIX_CACHE_NAME" \
+            "meloasr-${{ matrix.system }}" "$store_path"
