@@ -1,7 +1,7 @@
 {
   description = "MeloASR — web-backed voice input for Fcitx5";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs.nixpkgs.url = "github:Melorise/nixpkgs/nixos-unstable";
 
   outputs = { self, nixpkgs }:
     let
