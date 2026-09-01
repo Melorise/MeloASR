@@ -213,6 +213,7 @@ jobs:
         run: |
           cp flake.lock release/flake.lock
           cp packaging/arch/PKGBUILD release/PKGBUILD
+          cp packaging/arch/PKGBUILD-from-source release/PKGBUILD-from-source
 
       - uses: softprops/action-gh-release@v2
         with:

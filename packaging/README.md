@@ -57,7 +57,7 @@ packaging/rpm/build-rpm.sh
 
 ## Arch/pacman
 
-参见 [`arch/README.md`](arch/README.md)。PKGBUILD 在干净 chroot 中从源码构建 Electron 应用和 Fcitx5 addon。
+参见 [`arch/README.md`](arch/README.md)。默认 `PKGBUILD` 解包同版本官方 deb 并重打包为 pacman 包；`PKGBUILD-from-source` 保留在干净 chroot 中构建 Electron 应用和 Fcitx5 addon 的原有流程。
 
 ## Nix flake
 
@@ -72,6 +72,6 @@ flake 使用 nixpkgs 的 Electron，Node 依赖由 `pnpm-lock.yaml` 和固定输
 
 - 发布前确认仓库地址和许可证元数据；
 - 明确项目许可证，并替换临时的 `LicenseRef-Proprietary`/Nix license；
-- 生成 Arch 源码归档真实 SHA-256；
+- 生成 Arch bin 版 deb 和源码版源码归档的真实 SHA-256；
 - 在干净的 Debian、RPM、Arch 和 Nix 构建环境逐一构建、安装、卸载；
 - 验证 Fcitx5 能发现 addon，桌面菜单/托盘图标、自启动开关和包升级均正常。

@@ -1,0 +1,50 @@
+pkgname=tama-asr
+pkgver=1.0.1
+pkgrel=1
+pkgdesc='Web-backed voice input for Fcitx5'
+arch=('x86_64')
+url='https://github.com/Melorise/TamaASR'
+license=('MPL2')
+depends=('fcitx5' 'gtk3' 'nss' 'libxss' 'mesa' 'alsa-lib')
+conflicts=('meloasr')
+provides=('meloasr')
+replaces=('meloasr')
+makedepends=('nodejs' 'pnpm' 'cmake' 'gcc' 'nlohmann-json')
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+_source_dir="TamaASR-${pkgver}"
+
+build() {
+  cd "${srcdir}/${_source_dir}"
+  pnpm install --frozen-lockfile
+  pnpm run build:linux:dir
+  cmake -S linux/fcitx5 -B build/fcitx5 \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  cmake --build build/fcitx5 --parallel
+}
+
+check() {
+  cd "${srcdir}/${_source_dir}"
+  pnpm test
+  ctest --test-dir build/fcitx5 --output-on-failure
+}
+
+package() {
+  cd "${srcdir}/${_source_dir}"
+
+  install -d "${pkgdir}/opt/tama-asr"
+  cp -a release/linux-unpacked/. "${pkgdir}/opt/tama-asr/"
+  install -Dm755 packaging/assets/tama-asr-wrapper "${pkgdir}/usr/bin/tama-asr"
+  install -Dm644 packaging/assets/tama-asr.desktop \
+    "${pkgdir}/usr/share/applications/tama-asr.desktop"
+  install -Dm644 packaging/assets/tama-asr-autostart.desktop \
+    "${pkgdir}/etc/xdg/autostart/tama-asr.desktop"
+  install -Dm644 packaging/assets/tama-asr.metainfo.xml \
+    "${pkgdir}/usr/share/metainfo/tama-asr.metainfo.xml"
+  install -Dm644 src/assets/logo.png \
+    "${pkgdir}/usr/share/pixmaps/tama-asr.png"
+
+  DESTDIR="${pkgdir}" cmake --install build/fcitx5
+}

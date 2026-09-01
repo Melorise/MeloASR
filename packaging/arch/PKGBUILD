@@ -2,49 +2,32 @@ pkgname=tama-asr
 pkgver=1.0.1
 pkgrel=1
 pkgdesc='Web-backed voice input for Fcitx5'
-arch=('x86_64')
+arch=('x86_64' 'aarch64')
 url='https://github.com/Melorise/TamaASR'
 license=('MPL2')
 depends=('fcitx5' 'gtk3' 'nss' 'libxss' 'mesa' 'alsa-lib')
 conflicts=('meloasr')
 provides=('meloasr')
 replaces=('meloasr')
-makedepends=('nodejs' 'pnpm' 'cmake' 'gcc' 'nlohmann-json')
-source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
-sha256sums=('SKIP')
-
-_source_dir="TamaASR-${pkgver}"
-
-build() {
-  cd "${srcdir}/${_source_dir}"
-  pnpm install --frozen-lockfile
-  pnpm run build:linux:dir
-  cmake -S linux/fcitx5 -B build/fcitx5 \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/usr
-  cmake --build build/fcitx5 --parallel
-}
-
-check() {
-  cd "${srcdir}/${_source_dir}"
-  pnpm test
-  ctest --test-dir build/fcitx5 --output-on-failure
-}
+options=('!strip')
+source_x86_64=("${pkgname}-${pkgver}-x86_64.deb::${url}/releases/download/v${pkgver}/${pkgname}_${pkgver}_amd64.deb")
+source_aarch64=("${pkgname}-${pkgver}-aarch64.deb::${url}/releases/download/v${pkgver}/${pkgname}_${pkgver}_arm64.deb")
+sha256sums_x86_64=('SKIP')
+sha256sums_aarch64=('SKIP')
+noextract=("${pkgname}-${pkgver}-x86_64.deb" "${pkgname}-${pkgver}-aarch64.deb")
 
 package() {
-  cd "${srcdir}/${_source_dir}"
+  local deb_file="${srcdir}/${pkgname}-${pkgver}-${CARCH}.deb"
+  local deb_root="${srcdir}/deb-root"
+  local data_archives
 
-  install -d "${pkgdir}/opt/tama-asr"
-  cp -a release/linux-unpacked/. "${pkgdir}/opt/tama-asr/"
-  install -Dm755 packaging/assets/tama-asr-wrapper "${pkgdir}/usr/bin/tama-asr"
-  install -Dm644 packaging/assets/tama-asr.desktop \
-    "${pkgdir}/usr/share/applications/tama-asr.desktop"
-  install -Dm644 packaging/assets/tama-asr-autostart.desktop \
-    "${pkgdir}/etc/xdg/autostart/tama-asr.desktop"
-  install -Dm644 packaging/assets/tama-asr.metainfo.xml \
-    "${pkgdir}/usr/share/metainfo/tama-asr.metainfo.xml"
-  install -Dm644 src/assets/logo.png \
-    "${pkgdir}/usr/share/pixmaps/tama-asr.png"
-
-  DESTDIR="${pkgdir}" cmake --install build/fcitx5
+  rm -rf -- "${deb_root}"
+  mkdir -p "${deb_root}"
+  bsdtar -xf "${deb_file}" -C "${deb_root}"
+  data_archives=("${deb_root}"/data.tar.*)
+  if (( ${#data_archives[@]} != 1 )) || [[ ! -f "${data_archives[0]}" ]]; then
+    error '无法从 deb 包中找到唯一的 data.tar.* 归档'
+    return 1
+  fi
+  bsdtar -xf "${data_archives[0]}" -C "${pkgdir}"
 }
