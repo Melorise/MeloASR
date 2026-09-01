@@ -16,6 +16,7 @@
     <binary>meloasr</binary>
   </provides>
   <releases>
+    <release version="0.1.17" date="2026-09-01"/>
     <release version="0.1.16" date="2026-08-26"/>
     <release version="0.1.15" date="2026-08-26"/>
     <release version="0.1.14" date="2026-08-26"/>

@@ -8,10 +8,8 @@ const copies = [
   ['src/renderer/overlay.html', 'dist/renderer/overlay.html'],
   ['src/renderer/overlay.css', 'dist/renderer/overlay.css'],
   ['src/assets/logo.png', 'dist/assets/logo.png'],
-  ['src/assets/tray-loading.png', 'dist/assets/tray-loading.png'],
+  ['src/assets/tray-notready.png', 'dist/assets/tray-notready.png'],
   ['src/assets/tray-ready.png', 'dist/assets/tray-ready.png'],
-  ['src/assets/tray-login-required.png', 'dist/assets/tray-login-required.png'],
-  ['src/assets/tray-error.png', 'dist/assets/tray-error.png']
 ];
 
 for (const [source, target] of copies) {

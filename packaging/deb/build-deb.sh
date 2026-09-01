@@ -2,7 +2,7 @@
 set -euo pipefail
 
 project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
-version="${MELOASR_VERSION:-0.1.16}"
+version="${MELOASR_VERSION:-0.1.17}"
 arch="${MELOASR_DEB_ARCH:-$(dpkg --print-architecture)}"
 app_dir="${1:-${MELOASR_ELECTRON_APP_DIR:-${project_dir}/release/linux-unpacked}}"
 work_dir="${project_dir}/packaging/out/deb-root"

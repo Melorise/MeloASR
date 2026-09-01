@@ -36,6 +36,9 @@ tar -C %{buildroot} -xzf %{SOURCE0}
 /etc/xdg/autostart/meloasr.desktop
 
 %changelog
+* Tue Sep 01 2026 MeloASR contributors - 0.1.17-1
+- Replace the application and tray icons; use one icon for ready and one for all not-ready states.
+
 * Wed Aug 26 2026 MeloASR contributors - 0.1.16-1
 - Migrate dependency installation and build commands from npm to pnpm.
 

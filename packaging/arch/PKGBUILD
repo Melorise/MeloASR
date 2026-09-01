@@ -1,5 +1,5 @@
 pkgname=meloasr
-pkgver=0.1.16
+pkgver=0.1.17
 pkgrel=1
 pkgdesc='Web-backed voice input for Fcitx5'
 arch=('x86_64')

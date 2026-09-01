@@ -6,10 +6,10 @@ import type { SettingsWindow } from './settings-window';
 type TrayState = 'loading' | 'ready' | 'login-required' | 'error';
 
 const ICONS: Record<TrayState, string> = {
-  loading: 'tray-loading.png',
+  loading: 'tray-notready.png',
   ready: 'tray-ready.png',
-  'login-required': 'tray-login-required.png',
-  error: 'tray-error.png'
+  'login-required': 'tray-notready.png',
+  error: 'tray-notready.png'
 };
 
 function trayImage(state: TrayState): Electron.NativeImage {
