@@ -133,6 +133,13 @@ select:focus { border-color: #8abb98; }
 .position-link-copy strong { font-size: 14px; }
 .position-link-copy span { color: var(--text-secondary); font-size: 12px; }
 .chevron { width: 21px; height: 21px; color: #6e756f; }
+.trust-notice {
+  padding: 13px 15px; border: 1px solid #dce7de; border-radius: 10px;
+  color: #646b66; background: #f8faf8; font-size: 11px; line-height: 1.6;
+}
+.trust-notice p { margin: 0; }
+.trust-notice p + p { margin-top: 6px; }
+.trust-notice .license-note { color: #4b805a; font-weight: 600; }
 .app-footer { display: flex; align-items: center; justify-content: space-between; min-height: 26px; padding: 0 7px; color: var(--text-secondary); font-size: 12px; }
 .repository-link { display: inline-flex; align-items: center; gap: 3px; padding: 4px 0; border: 0; color: #4a8c5e; background: transparent; cursor: pointer; }
 .repository-link svg { width: 15px; height: 15px; }
