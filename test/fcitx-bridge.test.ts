@@ -3,7 +3,7 @@ import test from 'node:test';
 import { JsonLineDecoder, defaultSocketPath } from '../src/main/fcitx-bridge';
 
 test('Socket 路径只使用当前用户运行时目录', () => {
-  assert.equal(defaultSocketPath({ XDG_RUNTIME_DIR: '/run/user/1000' }), '/run/user/1000/meloasr/fcitx5.sock');
+  assert.equal(defaultSocketPath({ XDG_RUNTIME_DIR: '/run/user/1000' }), '/run/user/1000/tama-asr/fcitx5.sock');
   assert.throws(() => defaultSocketPath({}), /XDG_RUNTIME_DIR/);
 });
 

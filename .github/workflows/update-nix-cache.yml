@@ -87,8 +87,8 @@ jobs:
         env:
           CACHIX_CACHE_NAME: ${{ vars.CACHIX_CACHE_NAME }}
         run: |
-          nix build ".#packages.${{ matrix.system }}.meloasr"
+          nix build ".#packages.${{ matrix.system }}.tama-asr"
           store_path="$(readlink -f result)"
           cachix push "$CACHIX_CACHE_NAME" "$store_path"
           cachix pin --keep-revisions 1 "$CACHIX_CACHE_NAME" \
-            "meloasr-${{ matrix.system }}" "$store_path"
+            "tama-asr-${{ matrix.system }}" "$store_path"

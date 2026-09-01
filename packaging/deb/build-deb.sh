@@ -2,9 +2,9 @@
 set -euo pipefail
 
 project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
-version="${MELOASR_VERSION:-0.1.17}"
-arch="${MELOASR_DEB_ARCH:-$(dpkg --print-architecture)}"
-app_dir="${1:-${MELOASR_ELECTRON_APP_DIR:-${project_dir}/release/linux-unpacked}}"
+version="${TAMA_ASR_VERSION:-1.0.0}"
+arch="${TAMA_ASR_DEB_ARCH:-$(dpkg --print-architecture)}"
+app_dir="${1:-${TAMA_ASR_ELECTRON_APP_DIR:-${project_dir}/release/linux-unpacked}}"
 work_dir="${project_dir}/packaging/out/deb-root"
 output_dir="${project_dir}/packaging/out"
 
@@ -21,4 +21,4 @@ sed \
 
 mkdir -p "${output_dir}"
 dpkg-deb --root-owner-group --build "${work_dir}" \
-    "${output_dir}/meloasr_${version}_${arch}.deb"
+    "${output_dir}/tama-asr_${version}_${arch}.deb"

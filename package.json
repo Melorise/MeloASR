@@ -1,10 +1,10 @@
 {
-  "name": "meloasr",
-  "productName": "MeloASR",
-  "version": "0.1.17",
+  "name": "tama-asr",
+  "productName": "TamaASR",
+  "version": "1.0.0",
   "private": true,
   "packageManager": "pnpm@11.21.0",
-  "author": "MeloASR contributors",
+  "author": "TamaASR contributors",
   "description": "基于网页语音识别后端和 Fcitx5 的 Linux 实时语音输入工具",
   "main": "dist/main/index.js",
   "scripts": {

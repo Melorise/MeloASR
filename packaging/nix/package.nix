@@ -16,7 +16,7 @@ let
   pnpm = pnpm_11;
 in
 stdenv.mkDerivation (finalAttrs: {
-  pname = "meloasr";
+  pname = "tama-asr";
   version = (builtins.fromJSON (builtins.readFile ../../package.json)).version;
 
   src = ../..;
@@ -67,24 +67,24 @@ stdenv.mkDerivation (finalAttrs: {
   installPhase = ''
     runHook preInstall
 
-    appDir="$out/share/meloasr/app"
+    appDir="$out/share/tama-asr/app"
     mkdir -p "$appDir" "$out/bin" "$out/share/applications" \
       "$out/share/pixmaps" "$out/share/metainfo" \
       "$out/etc/xdg/autostart"
 
     cp package.json "$appDir/"
     cp -r dist "$appDir/"
-    install -Dm644 packaging/assets/meloasr.desktop \
-      "$out/share/applications/meloasr.desktop"
-    install -Dm644 packaging/assets/meloasr-autostart.desktop \
-      "$out/etc/xdg/autostart/meloasr.desktop"
-    install -Dm644 packaging/assets/meloasr.metainfo.xml \
-      "$out/share/metainfo/meloasr.metainfo.xml"
+    install -Dm644 packaging/assets/tama-asr.desktop \
+      "$out/share/applications/tama-asr.desktop"
+    install -Dm644 packaging/assets/tama-asr-autostart.desktop \
+      "$out/etc/xdg/autostart/tama-asr.desktop"
+    install -Dm644 packaging/assets/tama-asr.metainfo.xml \
+      "$out/share/metainfo/tama-asr.metainfo.xml"
     install -Dm644 src/assets/logo.png \
-      "$out/share/pixmaps/meloasr.png"
+      "$out/share/pixmaps/tama-asr.png"
 
     cmake --install build/fcitx5
-    makeWrapper ${electron}/bin/electron "$out/bin/meloasr" \
+    makeWrapper ${electron}/bin/electron "$out/bin/tama-asr" \
       --add-flags "$appDir"
 
     runHook postInstall
@@ -92,9 +92,9 @@ stdenv.mkDerivation (finalAttrs: {
 
   meta = {
     description = "Web-backed voice input for Fcitx5";
-    homepage = "https://github.com/Melorise/MeloASR";
+    homepage = "https://github.com/Melorise/TamaASR";
     license = lib.licenses.mpl20;
-    mainProgram = "meloasr";
+    mainProgram = "tama-asr";
     platforms = lib.platforms.linux;
   };
 })

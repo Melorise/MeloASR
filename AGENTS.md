@@ -1,8 +1,8 @@
-# MeloASR 维护约定
+# TamaASR 维护约定
 
 ## 项目范围
 
-MeloASR 是仅面向 Linux 的 Fcitx5 桌面语音输入工具。项目名为 `MeloASR`，分发包名为 `meloasr`，当前版本为 `0.1.17`。
+TamaASR 是仅面向 Linux 的 Fcitx5 桌面语音输入工具。项目名为 `TamaASR`，分发包名为 `tama-asr`，当前版本为 `1.0.0`。
 
 不得恢复 Windows、PowerShell 或 Tauri 输出路径。发行版差异只能存在于依赖说明和打包配置，不能进入语音输入核心逻辑。
 
@@ -44,7 +44,7 @@ MeloASR 是仅面向 Linux 的 Fcitx5 桌面语音输入工具。项目名为 `M
 
 ## Fcitx5 与本地协议
 
-- Socket：`$XDG_RUNTIME_DIR/meloasr/fcitx5.sock`；目录 `0700`，Socket `0600`；
+- Socket：`$XDG_RUNTIME_DIR/tama-asr/fcitx5.sock`；目录 `0700`，Socket `0600`；
 - JSONL 协议版本：2；
 - `sessionId` 隔离轮次，`revision` 单调递增；
 - `text` 永远是当前完整文本；

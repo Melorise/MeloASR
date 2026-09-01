@@ -1,4 +1,4 @@
-# MeloASR Fcitx5 addon
+# TamaASR Fcitx5 addon
 
 该 addon 作为 Fcitx5 常驻 Module 工作，不需要切换到独立输入法。
 
@@ -18,8 +18,8 @@ fcitx5 -r
 安装文件：
 
 ```text
-~/.local/lib/fcitx5/libmeloasr.so
-~/.local/share/fcitx5/addon/meloasr.conf
+~/.local/lib/fcitx5/libtama-asr.so
+~/.local/share/fcitx5/addon/tama-asr.conf
 ```
 
-本地协议使用 `$XDG_RUNTIME_DIR/meloasr/fcitx5.sock`，目录权限 `0700`，Socket 权限 `0600`。协议版本为 2，支持 `configure` 动态快捷键和 `activate` 悬浮球启动请求。
+本地协议使用 `$XDG_RUNTIME_DIR/tama-asr/fcitx5.sock`，目录权限 `0700`，Socket 权限 `0600`。协议版本为 2，支持 `configure` 动态快捷键和 `activate` 悬浮球启动请求。

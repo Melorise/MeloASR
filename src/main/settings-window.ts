@@ -37,7 +37,7 @@ export class SettingsWindow {
       minWidth: 560,
       minHeight: 560,
       show: false,
-      title: 'MeloASR 设置',
+      title: 'TamaASR 设置',
       autoHideMenuBar: true,
       icon: path.join(app.getAppPath(), 'dist', 'assets', 'logo.png'),
       webPreferences: {

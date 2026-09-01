@@ -1,10 +1,10 @@
 [Desktop Entry]
 Type=Application
-Name=MeloASR
+Name=TamaASR
 Comment=Web-backed voice input for Fcitx5
 Comment[zh_CN]=基于网页后端的 Fcitx5 语音输入工具
-Exec=meloasr
-Icon=meloasr
+Exec=tama-asr
+Icon=tama-asr
 Terminal=false
 Categories=Utility;Accessibility;
 StartupNotify=false

@@ -5,7 +5,7 @@ import path from 'node:path';
 import { resolveAutoStartAction } from './auto-start-policy';
 
 export class AutoStartService {
-  private readonly filePath = path.join(os.homedir(), '.config', 'autostart', 'meloasr.desktop');
+  private readonly filePath = path.join(os.homedir(), '.config', 'autostart', 'tama-asr.desktop');
 
   apply(enabled: boolean): void {
     const action = resolveAutoStartAction(app.isPackaged, enabled);
@@ -15,7 +15,7 @@ export class AutoStartService {
       fs.writeFileSync(this.filePath, [
         '[Desktop Entry]',
         'Type=Application',
-        'Name=MeloASR',
+        'Name=TamaASR',
         'Hidden=true',
         ''
       ].join('\n'), { mode: 0o644 });

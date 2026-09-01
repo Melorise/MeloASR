@@ -8,7 +8,7 @@ const MAX_LINE_BYTES = 1024 * 1024;
 
 export function defaultSocketPath(env: NodeJS.ProcessEnv = process.env): string {
   if (!env.XDG_RUNTIME_DIR) throw new Error('缺少 XDG_RUNTIME_DIR，无法创建 Fcitx5 本地 Socket');
-  return path.join(env.XDG_RUNTIME_DIR, 'meloasr', 'fcitx5.sock');
+  return path.join(env.XDG_RUNTIME_DIR, 'tama-asr', 'fcitx5.sock');
 }
 
 export class JsonLineDecoder {

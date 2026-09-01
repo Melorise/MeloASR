@@ -1,5 +1,5 @@
-appId: io.github.meloasr.MeloASR
-productName: MeloASR
+appId: io.github.melorise.TamaASR
+productName: TamaASR
 asar: true
 
 directories:
@@ -16,6 +16,6 @@ extraResources:
 linux:
   target:
     - dir
-  executableName: meloasr
+  executableName: tama-asr
   icon: src/assets/logo.png
   category: Utility

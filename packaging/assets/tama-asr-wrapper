@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /opt/tama-asr/tama-asr --ozone-platform=x11 "$@"

@@ -17,4 +17,4 @@ rm -f -- \
   "${HOME}/.local/lib/fcitx5/libvoiceinput.so" \
   "${HOME}/.local/share/fcitx5/addon/voiceinput.conf"
 
-echo "已安装 MeloASR Fcitx5 插件，请重启 Fcitx5。"
+echo "已安装 TamaASR Fcitx5 插件，请重启 Fcitx5。"

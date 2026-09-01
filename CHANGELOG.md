@@ -2,6 +2,13 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 的格式。
 
+## [1.0.0] - 2026-09-01
+
+### 变更
+
+- 项目更名为 TamaASR，分发包名改为 `tama-asr`，并迁移应用标识、Fcitx5 addon、本地 Socket、持久会话、桌面入口及安装路径。
+- 将仓库地址更新为 <https://github.com/Melorise/TamaASR>，并为 deb、RPM 和 Arch 包声明替换旧包的关系。
+
 ## [0.1.17] - 2026-09-01
 
 ### 变更

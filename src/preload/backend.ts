@@ -5,8 +5,8 @@ import { shouldClickMicrophoneOnCancel } from './speech-session-state';
 import { shouldFinishAfterStop } from './stop-completion';
 
 const backendId = process.argv
-  .find((argument) => argument.startsWith('--meloasr-backend='))
-  ?.slice('--meloasr-backend='.length) ?? '';
+  .find((argument) => argument.startsWith('--tama-asr-backend='))
+  ?.slice('--tama-asr-backend='.length) ?? '';
 const adapter = getBackendWebAdapter(backendId);
 
 let editorObserver: MutationObserver | undefined;

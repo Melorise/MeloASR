@@ -106,9 +106,9 @@ jobs:
 
       - name: 构建 deb 与 rpm
         env:
-          MELOASR_VERSION: ${{ needs.update-flake-lock.outputs.version }}
-          MELOASR_DEB_ARCH: ${{ matrix.deb_arch }}
-          MELOASR_ELECTRON_APP_DIR: ${{ matrix.electron_app_dir }}
+          TAMA_ASR_VERSION: ${{ needs.update-flake-lock.outputs.version }}
+          TAMA_ASR_DEB_ARCH: ${{ matrix.deb_arch }}
+          TAMA_ASR_ELECTRON_APP_DIR: ${{ matrix.electron_app_dir }}
         run: |
           pnpm install --frozen-lockfile
           pnpm run package:deb
@@ -165,17 +165,17 @@ jobs:
         env:
           CACHIX_CACHE_NAME: ${{ vars.CACHIX_CACHE_NAME }}
         run: |
-          nix build ".#packages.${{ matrix.system }}.meloasr"
+          nix build ".#packages.${{ matrix.system }}.tama-asr"
           store_path="$(readlink -f result)"
           cachix push "$CACHIX_CACHE_NAME" "$store_path"
           cachix pin --keep-revisions 1 "$CACHIX_CACHE_NAME" \
-            "meloasr-${{ matrix.system }}" "$store_path"
-          printf '%s\n' "$store_path" > "meloasr-${{ matrix.system }}.txt"
+            "tama-asr-${{ matrix.system }}" "$store_path"
+          printf '%s\n' "$store_path" > "tama-asr-${{ matrix.system }}.txt"
 
       - uses: actions/upload-artifact@v4
         with:
           name: nix-build-${{ matrix.system }}
-          path: meloasr-${{ matrix.system }}.txt
+          path: tama-asr-${{ matrix.system }}.txt
 
   publish-release:
     name: 创建 GitHub Release
@@ -218,7 +218,7 @@ jobs:
         with:
           tag_name: v${{ needs.update-flake-lock.outputs.version }}
           target_commitish: ${{ needs.update-flake-lock.outputs.commit_sha }}
-          name: MeloASR ${{ needs.update-flake-lock.outputs.version }}
+          name: TamaASR ${{ needs.update-flake-lock.outputs.version }}
           body_path: release-notes.md
           files: release/*
           fail_on_unmatched_files: true

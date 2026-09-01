@@ -9,7 +9,7 @@ import { SettingsWindow } from './settings-window';
 import { TrayController } from './tray-controller';
 import type { BackendStatusPayload, Point } from '../shared/contracts';
 
-app.setName('MeloASR');
+app.setName('TamaASR');
 app.disableHardwareAcceleration();
 app.commandLine.appendSwitch('disable-gpu');
 const singleInstance = app.requestSingleInstanceLock();
@@ -18,7 +18,7 @@ if (!singleInstance) {
   app.quit();
 } else {
   void app.whenReady().then(bootstrap).catch((error) => {
-    console.error('[MeloASR 启动失败]', error);
+    console.error('[TamaASR 启动失败]', error);
     app.quit();
   });
 }
@@ -36,8 +36,8 @@ async function bootstrap(): Promise<void> {
   const overlay = new OverlayController(settings);
   await overlay.create();
   const sessions = new SessionController(backends, bridge, overlay);
-  const repositoryUrl = process.env.MELOASR_REPOSITORY_URL?.trim() ||
-    'https://github.com/Melorise/MeloASR';
+  const repositoryUrl = process.env.TAMA_ASR_REPOSITORY_URL?.trim() ||
+    'https://github.com/Melorise/TamaASR';
   const settingsWindow = new SettingsWindow(settings, backends, overlay, sessions, repositoryUrl);
   registerIpc({ settings, autoStart, bridge, backends, overlay, sessions, settingsWindow });
   const tray = new TrayController(
@@ -164,7 +164,7 @@ function registerIpc(services: Services): void {
     if (typeof payload?.backend !== 'string' || !backends.senderIsActive(event, payload.backend)) return;
     if (!settings.get().diagnosticLogging) return;
     const { backend, stage, ...details } = payload;
-    console.info(`[MeloASR 网页诊断] backend=${backend} stage=${stage || 'unknown'} ${JSON.stringify(details)}`);
+    console.info(`[TamaASR 网页诊断] backend=${backend} stage=${stage || 'unknown'} ${JSON.stringify(details)}`);
   });
 }
 

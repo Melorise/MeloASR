@@ -35,7 +35,7 @@ namespace {
 constexpr int kProtocolVersion = 2;
 constexpr std::size_t kMaxBufferBytes = 1024 * 1024;
 
-#define MELOASR_DIAGNOSTIC_INFO if (!diagnosticLogging_) {} else FCITX_INFO()
+#define TAMA_ASR_DIAGNOSTIC_INFO if (!diagnosticLogging_) {} else FCITX_INFO()
 
 class VoiceInputAddon final : public fcitx::AddonInstance {
 public:
@@ -53,7 +53,7 @@ public:
             fcitx::EventType::InputContextFocusOut,
             fcitx::EventWatcherPhase::PostInputMethod,
             [this](fcitx::Event &event) {
-                MELOASR_DIAGNOSTIC_INFO << "MeloASR：InputContext focusOut，取消当前会话 active="
+                TAMA_ASR_DIAGNOSTIC_INFO << "TamaASR：InputContext focusOut，取消当前会话 active="
                              << session_.active() << " awaiting=" << awaitingStart_;
                 cancelForContext(static_cast<fcitx::InputContextEvent &>(event).inputContext());
             });
@@ -68,7 +68,7 @@ public:
             fcitx::EventType::InputContextReset,
             fcitx::EventWatcherPhase::PostInputMethod,
             [this](fcitx::Event &event) {
-                MELOASR_DIAGNOSTIC_INFO << "MeloASR：InputContext reset，取消当前会话 active="
+                TAMA_ASR_DIAGNOSTIC_INFO << "TamaASR：InputContext reset，取消当前会话 active="
                              << session_.active() << " awaiting=" << awaitingStart_;
                 cancelForContext(static_cast<fcitx::InputContextEvent &>(event).inputContext());
             });
@@ -79,7 +79,7 @@ public:
                 auto *context = static_cast<fcitx::InputContextEvent &>(event).inputContext();
                 if (context == focusedInputContext_) focusedInputContext_ = nullptr;
                 if (context == inputContext_) {
-                    MELOASR_DIAGNOSTIC_INFO << "MeloASR：InputContext destroyed，取消当前会话";
+                    TAMA_ASR_DIAGNOSTIC_INFO << "TamaASR：InputContext destroyed，取消当前会话";
                     sendControl("request-cancel");
                     resetLocalState(false);
                 }
@@ -118,7 +118,7 @@ private:
 
         if (action == VoiceKeyAction::Start) {
             event.filterAndAccept();
-            MELOASR_DIAGNOSTIC_INFO << "网页语音输入：快捷键按下 held=" << held_
+            TAMA_ASR_DIAGNOSTIC_INFO << "网页语音输入：快捷键按下 held=" << held_
                          << " awaiting=" << awaitingStart_
                          << " active=" << session_.active();
             if (!ensureConnected()) {
@@ -132,7 +132,7 @@ private:
 
         if (action == VoiceKeyAction::Stop) {
             event.filterAndAccept();
-            MELOASR_DIAGNOSTIC_INFO << "网页语音输入：快捷键松开 awaiting=" << awaitingStart_
+            TAMA_ASR_DIAGNOSTIC_INFO << "网页语音输入：快捷键松开 awaiting=" << awaitingStart_
                          << " active=" << session_.active();
             held_ = false;
             if (awaitingStart_ || session_.active()) sendControl("request-stop");
@@ -143,7 +143,7 @@ private:
 
         if (event.key().check(FcitxKey_Escape)) {
             event.filterAndAccept();
-            MELOASR_DIAGNOSTIC_INFO << "MeloASR：录音中收到 Escape，取消当前会话";
+            TAMA_ASR_DIAGNOSTIC_INFO << "TamaASR：录音中收到 Escape，取消当前会话";
             sendControl("request-cancel");
             clearPreedit();
             resetLocalState(false);
@@ -151,7 +151,7 @@ private:
         }
 
         // 用户开始键盘输入时，立即取消语音会话，并让该按键继续交给原输入法。
-        MELOASR_DIAGNOSTIC_INFO << "MeloASR：录音中收到其它按键，取消当前会话 key="
+        TAMA_ASR_DIAGNOSTIC_INFO << "TamaASR：录音中收到其它按键，取消当前会话 key="
                      << event.key().toString() << " rawKey=" << event.rawKey().toString()
                      << " repeat=" << event.rawKey().states().test(fcitx::KeyState::Repeat);
         sendControl("request-cancel");
@@ -163,7 +163,7 @@ private:
         if (!context || !context->hasFocus()) return false;
         if (!context->inputPanel().clientPreedit().empty() ||
             !context->inputPanel().preedit().empty()) {
-            FCITX_WARN() << "MeloASR：当前输入法存在未提交文本，本轮未启动";
+            FCITX_WARN() << "TamaASR：当前输入法存在未提交文本，本轮未启动";
             return false;
         }
         inputContext_ = context;
@@ -179,12 +179,12 @@ private:
             if (probe > 0 || (probe < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))) {
                 return true;
             }
-            MELOASR_DIAGNOSTIC_INFO << "网页语音输入：检测到失效的 Electron Socket，立即重连";
+            TAMA_ASR_DIAGNOSTIC_INFO << "网页语音输入：检测到失效的 Electron Socket，立即重连";
             handleDisconnect();
         }
         const char *runtimeDir = std::getenv("XDG_RUNTIME_DIR");
         if (!runtimeDir || !*runtimeDir) return false;
-        const std::string socketPath = std::string(runtimeDir) + "/meloasr/fcitx5.sock";
+        const std::string socketPath = std::string(runtimeDir) + "/tama-asr/fcitx5.sock";
         const int fd = ::socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
         if (fd < 0) return false;
         sockaddr_un address{};
@@ -267,11 +267,11 @@ private:
                 awaitingStart_ || session_.active()) return;
             fcitx::Key candidate(message["shortcut"].get<std::string>());
             if (!candidate.isValid() || !candidate.hasModifier()) {
-                FCITX_WARN() << "MeloASR：拒绝无效快捷键";
+                FCITX_WARN() << "TamaASR：拒绝无效快捷键";
                 return;
             }
             trigger_ = std::move(candidate);
-            MELOASR_DIAGNOSTIC_INFO << "MeloASR：快捷键已更新为 " << trigger_.toString();
+            TAMA_ASR_DIAGNOSTIC_INFO << "TamaASR：快捷键已更新为 " << trigger_.toString();
             return;
         }
         if (type == "activate") {
@@ -285,7 +285,7 @@ private:
             if (!message.contains("sessionId") || !message["sessionId"].is_string()) return;
             session_.start(message["sessionId"].get<std::string>());
             awaitingStart_ = false;
-            MELOASR_DIAGNOSTIC_INFO << "网页语音输入：会话开始，clientPreedit="
+            TAMA_ASR_DIAGNOSTIC_INFO << "网页语音输入：会话开始，clientPreedit="
                          << inputContext_->capabilityFlags().test(fcitx::CapabilityFlag::Preedit);
             // 新会话尚无文本；重复发布空 preedit 会使部分 frontend 立刻 reset。
             return;
@@ -293,7 +293,7 @@ private:
         if (type == "cancel") {
             const std::string incoming = message.value("sessionId", std::string());
             if (!incoming.empty() && !session_.matches(incoming)) return;
-            MELOASR_DIAGNOSTIC_INFO << "MeloASR：收到 Electron cancel，sessionIdEmpty="
+            TAMA_ASR_DIAGNOSTIC_INFO << "TamaASR：收到 Electron cancel，sessionIdEmpty="
                          << incoming.empty() << " message="
                          << message.value("message", std::string());
             clearPreedit();
@@ -306,7 +306,7 @@ private:
             const std::int64_t incomingRevision = message["revision"].get<std::int64_t>();
             if (!session_.accept(message.value("sessionId", std::string()), incomingRevision)) return;
             currentText_ = message["text"].get<std::string>();
-            MELOASR_DIAGNOSTIC_INFO << "网页语音输入：收到 " << type << " revision="
+            TAMA_ASR_DIAGNOSTIC_INFO << "网页语音输入：收到 " << type << " revision="
                          << incomingRevision << " bytes=" << currentText_.size();
             setPreedit(currentText_);
             if (type == "finish") {
@@ -374,7 +374,7 @@ private:
     }
 
     void handleDisconnect() {
-        MELOASR_DIAGNOSTIC_INFO << "MeloASR：Electron Socket 断开，取消当前会话 active="
+        TAMA_ASR_DIAGNOSTIC_INFO << "TamaASR：Electron Socket 断开，取消当前会话 active="
                      << session_.active() << " awaiting=" << awaitingStart_;
         clearPreedit();
         resetLocalState(false);

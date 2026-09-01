@@ -1,5 +1,5 @@
 {
-  description = "MeloASR — web-backed voice input for Fcitx5";
+  description = "TamaASR — web-backed voice input for Fcitx5";
 
   inputs.nixpkgs.url = "github:Melorise/nixpkgs/nixos-unstable";
 
@@ -12,13 +12,13 @@
         let pkgs = import nixpkgs { inherit system; };
         in {
           default = pkgs.callPackage ./packaging/nix/package.nix { };
-          meloasr = self.packages.${system}.default;
+          tama-asr = self.packages.${system}.default;
         });
 
       apps = forAllSystems (system: {
         default = {
           type = "app";
-          program = "${self.packages.${system}.default}/bin/meloasr";
+          program = "${self.packages.${system}.default}/bin/tama-asr";
         };
       });
 

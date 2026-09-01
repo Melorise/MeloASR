@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=TamaASR
+Comment=Start TamaASR when signing in
+Comment[zh_CN]=登录桌面后启动 TamaASR
+Exec=tama-asr --autostart
+Icon=tama-asr
+Terminal=false
+X-GNOME-Autostart-enabled=true
+X-KDE-autostart-after=panel
+NoDisplay=true
