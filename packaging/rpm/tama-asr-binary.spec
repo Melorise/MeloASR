@@ -38,6 +38,9 @@ tar -C %{buildroot} -xzf %{SOURCE0}
 /etc/xdg/autostart/tama-asr.desktop
 
 %changelog
+* Tue Sep 01 2026 TamaASR contributors - 1.0.1-1
+- Redesign the settings and overlay-position interfaces.
+
 * Tue Sep 01 2026 TamaASR contributors - 1.0.0-1
 - Rename the package and replace the legacy meloasr package on upgrade.
 

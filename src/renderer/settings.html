@@ -7,62 +7,128 @@
   <link rel="stylesheet" href="settings.css">
 </head>
 <body>
-  <header><img src="../assets/logo.png" alt=""><div><h1>TamaASR</h1><span>设置</span></div></header>
-  <main>
-    <section>
-      <h2>语音后端</h2>
-      <div class="row"><label for="backend">后端</label><select id="backend"></select><span id="backend-status" class="status"></span></div>
-      <div id="login-warning" class="warning" hidden>当前后端尚未登录。</div>
-      <button id="open-debug">打开登录/调试页面</button>
+  <main id="settings-view" class="view settings-view">
+    <header class="app-header">
+      <div class="brand">
+        <img src="../assets/logo.png" alt="TamaASR">
+        <div><h1>TamaASR</h1><p>Linux 语音输入</p></div>
+      </div>
+      <span id="app-status" class="app-status"><i></i><span>正在连接</span></span>
+    </header>
+
+    <section class="card service-card" aria-labelledby="service-title">
+      <div class="section-heading">
+        <h2 id="service-title">语音服务</h2>
+        <p>选择用于语音识别的网页服务</p>
+      </div>
+      <div class="service-row">
+        <label for="backend">当前服务</label>
+        <div class="select-shell service-select"><select id="backend"></select></div>
+        <span id="backend-status" class="backend-status"><i></i><span></span></span>
+      </div>
+      <div id="login-warning" class="warning" hidden>
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15Zm0 4v4m0 3h.01"/></svg>
+        <span>当前服务尚未登录，完成登录后才能开始语音输入。</span>
+      </div>
+      <div class="service-actions"><button id="open-debug" class="primary-button" type="button">打开登录与调试</button></div>
     </section>
 
-    <section>
-      <h2>悬浮球</h2>
-      <button id="open-position">调整悬浮球位置</button>
+    <section class="card preferences-card" aria-labelledby="preferences-title">
+      <h2 id="preferences-title">输入与启动</h2>
+      <div class="preference-row shortcut-row">
+        <div class="preference-copy"><strong>按住说话</strong><span>按住快捷键开始识别，松开后提交文本</span></div>
+        <button id="shortcut" class="shortcut" type="button"></button>
+      </div>
+      <label class="preference-row toggle-row" for="auto-start">
+        <span class="preference-copy"><strong>开机自动启动</strong><span>登录桌面后自动运行 TamaASR</span></span>
+        <span class="toggle"><input id="auto-start" type="checkbox"><span aria-hidden="true"></span></span>
+      </label>
+      <label class="preference-row toggle-row" for="diagnostic-logging">
+        <span class="preference-copy"><strong>诊断日志</strong><span>仅在排查问题时记录运行信息</span></span>
+        <span class="toggle"><input id="diagnostic-logging" type="checkbox"><span aria-hidden="true"></span></span>
+      </label>
     </section>
 
-    <section>
-      <h2>常规</h2>
-      <div class="row"><span>按住说话快捷键</span><button id="shortcut" class="shortcut"></button></div>
-      <label class="switch"><input id="auto-start" type="checkbox"><span>开机自动启动</span></label>
-      <label class="switch"><input id="diagnostic-logging" type="checkbox"><span>记录诊断日志</span></label>
-    </section>
+    <button id="open-position" class="card position-link" type="button">
+      <span class="position-icon"><img src="../assets/logo.png" alt=""></span>
+      <span class="position-link-copy"><strong>悬浮球位置</strong><span id="position-summary">正在读取位置…</span></span>
+      <svg class="chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m7.5 4.5 5 5.5-5 5.5"/></svg>
+    </button>
 
-    <section>
-      <h2>关于</h2>
-      <div class="row"><span>版本</span><span id="version"></span></div>
-      <div class="row"><span>项目仓库</span><button id="repository" class="link"></button></div>
-    </section>
-    <div id="message" role="status"></div>
+    <footer class="app-footer">
+      <span>版本 <span id="version"></span></span>
+      <button id="repository" class="repository-link" type="button"><span></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5h8v8m0-8L5 15"/></svg></button>
+    </footer>
   </main>
-  <main id="position-view" style="display: none">
-    <div class="page-title"><button id="back-settings" title="返回设置">返回</button><div><h2>悬浮球位置</h2><span>位置调整</span></div></div>
-    <section class="position-panel">
-      <div class="row"><label for="display">屏幕</label><select id="display"></select></div>
-      <div id="position-screen" class="position-screen" aria-label="屏幕位置预览"><div id="position-ball" class="position-ball"></div></div>
-      <div class="position-controls">
-        <div class="coordinates"><label for="position-x">X <input id="position-x" type="number" step="1"></label><label for="position-y">Y <input id="position-y" type="number" step="1"></label></div>
-        <div class="direction-pad" aria-label="方向键">
-          <button data-direction="up" title="上移">上</button>
-          <button data-direction="left" title="左移">左</button><button data-direction="center" title="回到屏幕中央">●</button><button data-direction="right" title="右移">右</button>
-          <button data-direction="down" title="下移">下</button>
+
+  <main id="position-view" class="view position-view" hidden>
+    <header class="position-header">
+      <button id="back-settings" class="icon-button" type="button" title="返回设置" aria-label="返回设置">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12.5 4.5-5 5.5 5 5.5"/></svg>
+      </button>
+      <div><h1>悬浮球位置</h1><p>选择它在桌面上的默认位置</p></div>
+    </header>
+
+    <section class="card position-panel">
+      <div class="display-row">
+        <label for="display">显示器</label>
+        <div class="select-shell"><select id="display"></select></div>
+      </div>
+
+      <div id="position-screen" class="position-screen" aria-label="当前显示器的位置预览">
+        <div class="desktop-bar"><span>活动</span><span>TamaASR 桌面</span><span class="desktop-status">●&nbsp; ●&nbsp; ●</span></div>
+        <div class="desktop-window window-back"><i></i><i></i><i></i><span></span><span></span><span></span></div>
+        <div class="desktop-window window-front"><i></i><i></i><i></i><span></span><span></span><span></span></div>
+        <div id="position-ball" class="position-ball"><img src="../assets/logo.png" alt="悬浮球"></div>
+      </div>
+
+      <div class="position-tools">
+        <div class="preset-section">
+          <h2>快速位置</h2>
+          <div class="preset-grid" aria-label="九宫格位置预设">
+            <button data-preset="top-left" type="button" title="左上" aria-label="左上"></button>
+            <button data-preset="top-center" type="button" title="顶部居中" aria-label="顶部居中"></button>
+            <button data-preset="top-right" type="button" title="右上" aria-label="右上"></button>
+            <button data-preset="middle-left" type="button" title="左侧居中" aria-label="左侧居中"></button>
+            <button data-preset="middle-center" type="button" title="屏幕中央" aria-label="屏幕中央"></button>
+            <button data-preset="middle-right" type="button" title="右侧居中" aria-label="右侧居中"></button>
+            <button data-preset="bottom-left" type="button" title="左下" aria-label="左下"></button>
+            <button data-preset="bottom-center" type="button" title="底部居中" aria-label="底部居中"></button>
+            <button data-preset="bottom-right" type="button" title="右下" aria-label="右下"></button>
+          </div>
+        </div>
+
+        <div class="precise-section">
+          <h2>精确位置</h2>
+          <div class="precise-controls">
+            <div class="coordinates">
+              <label for="position-x"><span>X</span><input id="position-x" type="number" step="1"></label>
+              <label for="position-y"><span>Y</span><input id="position-y" type="number" step="1"></label>
+            </div>
+            <div class="direction-pad" aria-label="方向微调">
+              <button data-direction="up" type="button" title="上移" aria-label="上移"><svg viewBox="0 0 20 20"><path d="m5 12.5 5-5 5 5"/></svg></button>
+              <button data-direction="left" type="button" title="左移" aria-label="左移"><svg viewBox="0 0 20 20"><path d="m12.5 5-5 5 5 5"/></svg></button>
+              <button data-direction="center" type="button" title="回到屏幕中央" aria-label="回到屏幕中央"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="5.5"/><circle cx="10" cy="10" r="1.5"/><path d="M10 2v2.5M10 15.5V18M2 10h2.5M15.5 10H18"/></svg></button>
+              <button data-direction="right" type="button" title="右移" aria-label="右移"><svg viewBox="0 0 20 20"><path d="m7.5 5 5 5-5 5"/></svg></button>
+              <button data-direction="down" type="button" title="下移" aria-label="下移"><svg viewBox="0 0 20 20"><path d="m5 7.5 5 5 5-5"/></svg></button>
+            </div>
+          </div>
+          <p class="hint">方向键移动 1 像素，按住 Shift 移动 10 像素</p>
         </div>
       </div>
-      <div class="preset-grid" aria-label="九宫格位置预设">
-        <button data-preset="top-left" title="左上"></button><button data-preset="top-center" title="顶部居中"></button><button data-preset="top-right" title="右上"></button>
-        <button data-preset="middle-left" title="左侧居中"></button><button data-preset="middle-center" title="屏幕中央"></button><button data-preset="middle-right" title="右侧居中"></button>
-        <button data-preset="bottom-left" title="左下"></button><button data-preset="bottom-center" title="底部居中"></button><button data-preset="bottom-right" title="右下"></button>
-      </div>
-      <div class="hint">方向键 1 像素，Shift + 方向键 10 像素</div>
     </section>
   </main>
+
+  <div id="message" class="message" role="status" aria-live="polite"></div>
+
   <dialog id="login-notice">
     <div class="modal-content">
-      <h2 id="login-notice-title">登录后端</h2>
+      <div class="modal-icon" aria-hidden="true"><img src="../assets/logo.png" alt=""></div>
+      <h2 id="login-notice-title">登录语音服务</h2>
       <p>请先登录对应的网页平台。登录完成后即可关闭调试窗口。</p>
       <div class="modal-actions">
-        <button id="login-notice-cancel" type="button">取消</button>
-        <button id="login-notice-continue" type="button" class="primary">打开登录页面</button>
+        <button id="login-notice-cancel" type="button" class="secondary-button">取消</button>
+        <button id="login-notice-continue" type="button" class="primary-button">打开登录页面</button>
       </div>
     </div>
   </dialog>

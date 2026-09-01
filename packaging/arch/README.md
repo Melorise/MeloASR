@@ -4,7 +4,7 @@
 
 ```bash
 curl --fail --location --remote-name \
-  https://github.com/Melorise/TamaASR/releases/download/v1.0.0/PKGBUILD
+  https://github.com/Melorise/TamaASR/releases/download/v1.0.1/PKGBUILD
 makepkg --syncdeps --cleanbuild
 ```
 

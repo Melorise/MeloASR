@@ -98,7 +98,7 @@ export class SettingsWindow {
       overlayPosition: position,
       displays: screen.getAllDisplays().map((display, index) => ({
         id: String(display.id),
-        label: `屏幕 ${index + 1}（${display.workArea.width} × ${display.workArea.height}）`,
+        label: `屏幕 ${index + 1} · ${display.workArea.width} × ${display.workArea.height}`,
         workArea: display.workArea
       })),
       version: app.getVersion(),

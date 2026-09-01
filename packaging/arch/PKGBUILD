@@ -1,5 +1,5 @@
 pkgname=tama-asr
-pkgver=1.0.0
+pkgver=1.0.1
 pkgrel=1
 pkgdesc='Web-backed voice input for Fcitx5'
 arch=('x86_64')
