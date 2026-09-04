@@ -6,7 +6,7 @@ Comment[zh_CN]=将 TamaASR 网页后端连接到当前输入上下文
 Type=SharedLibrary
 Library=@TAMA_ASR_LIBRARY_PATH@
 Category=Module
-Version=1.0.1
+Version=1.0.2
 OnDemand=False
 Configurable=False
 

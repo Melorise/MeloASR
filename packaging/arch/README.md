@@ -8,7 +8,7 @@
 
 ```bash
 curl --fail --location --remote-name \
-  https://github.com/Melorise/TamaASR/releases/download/v1.0.1/PKGBUILD
+  https://github.com/Melorise/TamaASR/releases/download/v1.0.2/PKGBUILD
 makepkg --syncdeps --cleanbuild
 ```
 
@@ -20,7 +20,7 @@ makepkg --syncdeps --cleanbuild
 
 ```bash
 curl --fail --location --remote-name \
-  https://github.com/Melorise/TamaASR/releases/download/v1.0.1/PKGBUILD-from-source
+  https://github.com/Melorise/TamaASR/releases/download/v1.0.2/PKGBUILD-from-source
 makepkg --syncdeps --cleanbuild -p PKGBUILD-from-source
 ```
 
