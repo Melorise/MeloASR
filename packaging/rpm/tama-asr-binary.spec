@@ -38,6 +38,9 @@ tar -C %{buildroot} -xzf %{SOURCE0}
 /etc/xdg/autostart/tama-asr.desktop
 
 %changelog
+* Fri Sep 04 2026 TamaASR contributors - 1.0.2-1
+- 修复快速停止可能使网页录音状态与外部会话不同步的问题。
+
 * Tue Sep 01 2026 TamaASR contributors - 1.0.1-1
 - Redesign the settings and overlay-position interfaces.
 

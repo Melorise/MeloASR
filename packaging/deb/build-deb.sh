@@ -2,7 +2,7 @@
 set -euo pipefail
 
 project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
-version="${TAMA_ASR_VERSION:-1.0.1}"
+version="${TAMA_ASR_VERSION:-1.0.2}"
 arch="${TAMA_ASR_DEB_ARCH:-$(dpkg --print-architecture)}"
 app_dir="${1:-${TAMA_ASR_ELECTRON_APP_DIR:-${project_dir}/release/linux-unpacked}}"
 work_dir="${project_dir}/packaging/out/deb-root"
