@@ -1,7 +1,7 @@
 import { ipcRenderer } from 'electron';
 import type { BackendControlCommand, BackendPageStatus, BackendTranscriptPayload } from '../backends/contracts';
 import { getBackendWebAdapter } from '../backends/web-registry';
-import { shouldClickMicrophoneOnCancel } from './speech-session-state';
+import { shouldClickMicrophoneOnCancel, shouldClickMicrophoneOnStop } from './speech-session-state';
 import { shouldFinishAfterStop } from './stop-completion';
 
 const backendId = process.argv
@@ -180,9 +180,7 @@ function stopSpeech(): void {
   if (!active || stopping || !adapter) return;
   stopping = true;
   const stoppedAt = Date.now();
-  const wasRecordingAtStop = adapter.isRecording(document);
-  adapter.findMicrophone(document)?.click();
-  diagnose('stop-clicked', { microphone: controlSnapshot(adapter.findMicrophone(document)) });
+  let stopClicked = false;
   const finish = (): void => {
     emitCurrentEditorText();
     resetSession();
@@ -192,11 +190,22 @@ function stopSpeech(): void {
   const checkCompletion = (): void => {
     if (!active || !stopping || !adapter) return;
     const now = Date.now();
+    const isRecording = adapter.isRecording(document);
+    if (shouldClickMicrophoneOnStop(isRecording, stopClicked)) {
+      const microphone = adapter.findMicrophone(document);
+      if (microphone) {
+        microphone.click();
+        stopClicked = true;
+        diagnose('stop-clicked', { microphone: controlSnapshot(adapter.findMicrophone(document)) });
+      }
+      stopTimer = setTimeout(checkCompletion, 75);
+      return;
+    }
     if (shouldFinishAfterStop({
       elapsedMs: now - stoppedAt,
       quietMs: now - lastTranscriptAt,
-      wasRecordingAtStop,
-      isRecording: adapter.isRecording(document),
+      stopClicked,
+      isRecording,
       ...adapter.stopCompletion
     })) {
       diagnose('stop-complete', { elapsedMs: now - stoppedAt });
@@ -206,7 +215,7 @@ function stopSpeech(): void {
     stopTimer = setTimeout(checkCompletion, 75);
   };
   clearTimeout(stopTimer);
-  stopTimer = setTimeout(checkCompletion, 75);
+  checkCompletion();
 }
 
 function cancelSpeech(): void {
